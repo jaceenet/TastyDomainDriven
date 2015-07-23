@@ -1,0 +1,118 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{CBEA5276-6614-4AA7-AE3B-C06A53C0C2A2}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TastyDomainDriven</RootNamespace>
+    <AssemblyName>TastyDomainDriven</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AddOrUpdateHint.cs" />
+    <Compile Include="AggregateRoot.cs" />
+    <Compile Include="AggregateService\AggregateService.cs" />
+    <Compile Include="AggregateState.cs" />
+    <Compile Include="AppendOnlyStoreConcurrencyException.cs" />
+    <Compile Include="BaseEventStoreProjector.cs" />
+    <Compile Include="BinaryFormatterSerializer.cs" />
+    <Compile Include="CommandExtensions.cs" />
+    <Compile Include="CqrsRegistionExtensions.cs" />
+    <Compile Include="DataWithName.cs" />
+    <Compile Include="DataWithVersion.cs" />
+    <Compile Include="EventStorePublisher.cs" />
+    <Compile Include="EventStore\EventStore.cs" />
+    <Compile Include="EventStore\EventStoreCopier.cs" />
+    <Compile Include="EventStore\EventStoreForwarder.cs" />
+    <Compile Include="EventStream.cs" />
+    <Compile Include="IConsumesAsync.cs" />
+    <Compile Include="IEventForNamedSource.cs" />
+    <Compile Include="IEventPublisher.cs" />
+    <Compile Include="ISagaConsumes.cs" />
+    <Compile Include="ISagaConsumesAsync.cs" />
+    <Compile Include="ISingleKey.cs" />
+    <Compile Include="ITableReader.cs" />
+    <Compile Include="ITableReaderWriter.cs" />
+    <Compile Include="ITableWriter.cs" />
+    <Compile Include="Projections\CachedTableReaderWriter.cs" />
+    <Compile Include="Projections\EventRegisterAsync.cs" />
+    <Compile Include="Projections\MemoryTableWriter.cs" />
+    <Compile Include="Projections\EventRegister.cs" />
+    <Compile Include="Projections\ExtendDocumentWriter.cs" />
+    <Compile Include="File\FileAppendOnlyStore.cs" />
+    <Compile Include="Memory\MemoryAppendStore.cs" />
+    <Compile Include="IAggregate.cs" />
+    <Compile Include="IAppendOnlyStore.cs" />
+    <Compile Include="IAppendOnlyStoreExtensions.cs" />
+    <Compile Include="IApplicationService.cs" />
+    <Compile Include="IBaseProjection.cs" />
+    <Compile Include="IBus.cs" />
+    <Compile Include="ICommand.cs" />
+    <Compile Include="IConsumes.cs" />
+    <Compile Include="IEvent.cs" />
+    <Compile Include="IEventSerializer.cs" />
+    <Compile Include="IEventStore.cs" />
+    <Compile Include="IIdentity.cs" />
+    <Compile Include="Bus\InProcessBus.cs" />
+    <Compile Include="IStateEvent.cs" />
+    <Compile Include="Projections\IDocumentReaderWriter.cs" />
+    <Compile Include="BaseEventPublisher.cs" />
+    <Compile Include="Projections\TypeExtensions.cs" />
+    <Compile Include="Saga\ISagaEventStore.cs" />
+    <Compile Include="Saga\ISagaRoot.cs" />
+    <Compile Include="QueueBus.cs" />
+    <Compile Include="Saga\SagaRoot.cs" />
+    <Compile Include="Saga\SagaService.cs" />
+    <Compile Include="ServiceFactory.cs" />
+    <Compile Include="Bus\SqlLoggedBus.cs" />
+    <Compile Include="Bus\SynchronBus.cs" />
+    <Compile Include="TableWriterExtensions.cs" />
+    <Compile Include="TheLogger.cs" />
+    <Compile Include="Projections\DocumentReaderWriter.cs" />
+    <Compile Include="Memory\MemoryStorage.cs" />
+    <Compile Include="MsSql\SqlAppendOnlyStore.cs" />
+    <Compile Include="OptimisticConcurrencyException.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TheLogManager.cs" />
+    <Compile Include="AggregateService\CreateAggregateByUpdate.cs" />
+    <Compile Include="AggregateService\UpdateAggregate.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
