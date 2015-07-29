@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>TastyDomainDriven\TastyDomainDriven.csproj</id>
-    <version>1.0.0</version>
+    <version>$version$</version>
     <authors>Jacob</authors>
     <owners>Jacob</owners>
     <projectUrl>https://github.com/jaceenet/tastydomaindriven</projectUrl>
