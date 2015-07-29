@@ -1,12 +1,13 @@
 ﻿Param(
-    [switch]$Major, 
-    [switch]$Minor, 
-    [switch]$Patch, 
+    [switch]$BumpMajor, 
+    [switch]$BumoMinor, 
+    [switch]$BumpPatch, 
     [string]$Pre = "", 
     [string]$File = "VERSION", 
     [string]$Version = "",
     [switch]$Version_Out,
-    [switch]$Commit
+    [switch]$Commit,
+    [int]$Patch = -1
 )
     
 [int]$MajorVersion = 0;
@@ -29,19 +30,23 @@ try{ $MajorVersion = [int]$semver[0]; } catch { Write-Host "Invalid major" $semv
 try{ $MinorVersion = [int]$semver[1]; } catch { Write-Host "Invalid minor" $semver }
 try{ $PatchVersion = [int]$semver[2]; } catch { Write-Host "Invalid patch" $semver }
     
-if ($Major){
+if ($BumpMajor){
     $MajorVersion += 1;    
     $MinorVersion = 0;
     $PatchVersion =0;
 }
 
-if ($Minor){
+if ($BumpMinor){
     $MinorVersion += 1;
     $PatchVersion = 0;
 }
     
-if ($Patch){
+if ($BumpPatch){
     $PatchVersion += 1;    
+}
+
+if ($Patch -gt 0){
+    $PatchVersion = $Patch
 }
     
 $file_version = [string]::Format("{0}.{1}.{2}", $MajorVersion, $MinorVersion, $PatchVersion) 
