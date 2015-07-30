@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>TastyDomainDriven\TastyDomainDriven.csproj</id>
+    <id>TastyDomainDriven</id>
     <version>$version$</version>
     <authors>Jacob</authors>
     <owners>Jacob</owners>
     <projectUrl>https://github.com/jaceenet/tastydomaindriven</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Event sourcing for ddd</description>
-    <releaseNotes>Summary of changes made in this release of the package.</releaseNotes>
+    <releaseNotes>No notes</releaseNotes>
     <copyright>Copyright 2015</copyright>
   </metadata>
 </package>

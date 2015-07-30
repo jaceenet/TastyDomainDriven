@@ -1,8 +1,8 @@
-﻿namespace TastyDomainDriven.AzureAppender
-{
-    using System;
-    using System.IO;
+﻿using System;
+using System.IO;
 
+namespace TastyDomainDriven.Azure
+{
     /// <summary>
     /// Helps to write data to the underlying store, which accepts only
     /// pages with specific size

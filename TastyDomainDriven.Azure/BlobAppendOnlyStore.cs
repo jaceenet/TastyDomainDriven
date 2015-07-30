@@ -1,19 +1,18 @@
-﻿namespace TastyDomainDriven.AzureAppender
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
+
+namespace TastyDomainDriven.Azure
 {
-    using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.IO;
-    using System.Linq;
-    using System.Net;
-    using System.Security.Cryptography;
-    using System.Text;
-    using System.Threading;
-
-    using Microsoft.WindowsAzure.Storage;
-    using Microsoft.WindowsAzure.Storage.Blob;    
-
     /// <summary>
     /// <para>This is embedded append-only store implemented on top of cloud page blobs 
     /// (for persisting data with one HTTP call).</para>

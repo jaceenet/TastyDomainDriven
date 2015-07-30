@@ -1,13 +1,12 @@
-﻿namespace TastyDomainDriven.AzureAppender
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Table;
+
+namespace TastyDomainDriven.Azure
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-
-    using Microsoft.WindowsAzure.Storage;
-    using Microsoft.WindowsAzure.Storage.Table;
-
     public class AzureTableWriter<TEntity> : TableEntity, ITableReaderWriter<TEntity>
         where TEntity : TableEntity, new()
     {

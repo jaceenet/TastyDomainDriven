@@ -4,12 +4,12 @@ namespace TastyDomainDriven.Saga
 
     using TastyDomainDriven.EventStore;
 
-	[Obsolete("Not recommended saga implementation")]
+	[Obsolete("Not recommended saga implementation", true)]
     public interface ISagaEventStore : IEventStore
     {
     }
 
-    [Obsolete("Not recommended saga implementation")]
+    [Obsolete("Not recommended saga implementation", true)]
     public class SagaEventStore : EventStore, ISagaEventStore
     {
         public SagaEventStore(IAppendOnlyStore appendOnlyStore)

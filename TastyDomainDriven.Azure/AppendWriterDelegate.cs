@@ -1,7 +1,7 @@
-﻿namespace TastyDomainDriven.AzureAppender
-{
-    using System.IO;
+﻿using System.IO;
 
+namespace TastyDomainDriven.Azure
+{
     /// <summary>
     /// Delegate that writes pages to the underlying paged store.
     /// </summary>

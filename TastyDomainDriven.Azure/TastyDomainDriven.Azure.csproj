@@ -7,8 +7,8 @@
     <ProjectGuid>{212B8EFA-7033-4E8C-89D1-7454EF19340F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TastyDomainDriven.AzureAppender</RootNamespace>
-    <AssemblyName>TastyDomainDriven.AzureAppender</AssemblyName>
+    <RootNamespace>TastyDomainDriven.Azure</RootNamespace>
+    <AssemblyName>TastyDomainDriven.Azure</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>

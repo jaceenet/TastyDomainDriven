@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>TastyDomainDriven.AzureAppender\TastyDomainDriven.AzureAppender.csproj</id>
+    <id>TastyDomainDriven.Azure</id>
     <version>$version$</version>
     <authors>Jacob</authors>
     <owners>Jacob</owners>
     <projectUrl>https://github.com/jaceenet/tastydomaindriven</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Azure addon for TastyDomainDriven</description>
-    <releaseNotes>Summary of changes made in this release of the package.</releaseNotes>
+    <releaseNotes>No notes.</releaseNotes>
     <copyright>Copyright 2015</copyright>
   </metadata>
 </package>

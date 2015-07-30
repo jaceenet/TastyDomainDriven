@@ -1,12 +1,59 @@
-install:
-  - choco install gitversion.portable -pre -y
+# configuration for "master" branch
+# build in Release mode and deploy to Azure
+-
+  branches:
+    only:
+      - master
+      - /release/.*/
 
-assembly_info:
-  patch: false
+  configuration: Release
+  install:
+    - choco install gitversion.portable -pre -y
 
-before_build:
-  - nuget restore
-  - ps: gitversion /l console /output buildserver /updateAssemblyInfo
+  assembly_info:
+    patch: false
 
-build:
-  project: TastyDomainDriven
+  before_build:
+    - nuget restore
+    - ps: gitversion /l console /output buildserver /updateAssemblyInfo
+
+  build:
+    project: TastyDomainDriven.sln
+
+  after_build:
+    - cmd: ECHO nuget pack TastyDomainDriven\TastyDomainDriven.csproj -version "%GitVersion_NuGetVersion%" -prop "target=%CONFIGURATION%"
+    - cmd: nuget pack TastyDomainDriven\TastyDomainDriven.csproj -version "%GitVersion_NuGetVersion%" -prop "target=%CONFIGURATION%"
+    - cmd: ECHO nuget pack TastyDomainDriven.Azure\TastyDomainDriven.Azure.csproj -version "%GitVersion_NuGetVersion%" -prop "target=%CONFIGURATION%" -IncludeReferencedProjects
+    - cmd: nuget pack TastyDomainDriven.Azure\TastyDomainDriven.Azure.csproj -version "%GitVersion_NuGetVersion%" -prop "target=%CONFIGURATION%" -IncludeReferencedProjects
+
+  artifacts:
+    - path: '*.nupkg'
+
+  deploy:
+    provider: NuGet
+    api_key:
+      secure: uqDobbdR4jNum/3tV0nKhQGGnYGvotvicsIy7JPgs5lnQkneVBKgTX5blOqyVF4k
+    skip_symbols: false
+    artifact: /.*\.nupkg/
+
+# "fall back" configuration for all other branches
+# no "branches" section defined
+# do not deploy at all
+-
+  configuration: Debug
+
+  # Do not build on tags (GitHub only)
+  skip_tags: true
+
+  install:
+    - choco install gitversion.portable -pre -y
+
+  assembly_info:
+    patch: false
+
+  before_build:
+    - nuget restore
+    - ps: gitversion /l console /output buildserver /updateAssemblyInfo
+
+  build:
+    project: TastyDomainDriven.sln
