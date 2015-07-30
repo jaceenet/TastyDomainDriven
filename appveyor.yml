@@ -27,7 +27,7 @@
     - cmd: nuget pack TastyDomainDriven.Azure\TastyDomainDriven.Azure.csproj -version "%GitVersion_NuGetVersion%" -prop "target=%CONFIGURATION%" -IncludeReferencedProjects
 
   artifacts:
-    - path: **\*.nupkg
+    - path: '*.nupkg'
 
   deploy:
     provider: NuGet
