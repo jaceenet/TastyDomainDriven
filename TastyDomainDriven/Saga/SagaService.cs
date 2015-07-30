@@ -4,7 +4,7 @@
     using System.Collections;
     using System.Linq;
 
-    [Obsolete("Not recommended saga implementation")]
+    [Obsolete("Not recommended saga implementation", true)]
     public class SagaService<TSagaAggregate>  where TSagaAggregate : ISagaRoot, new()
     {
         private static readonly TheLogger Logger = TheLogManager.GetLogger(typeof(SagaService<TSagaAggregate>));

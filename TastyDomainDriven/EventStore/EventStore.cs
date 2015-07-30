@@ -40,7 +40,8 @@
             this.AppendOnlyStore = appendOnlyStore;
         }
 
-        [Obsolete("Use appendOnlyStore.ReadRecords(0, int.MaxValue)")]
+        
+		[Obsolete()]
         public EventStream ReplayAll(int? afterVersion = null, int? maxVersion = null)
         {
             var records = this.AppendOnlyStore.ReadRecords(afterVersion ?? 0, maxVersion ?? int.MaxValue).ToList();
@@ -54,6 +55,8 @@
 
             return stream;
         }
+
+		public 
 
         private IEnumerable<IEvent> DeserializeEvent(byte[] data)
         {
