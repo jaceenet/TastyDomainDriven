@@ -52,7 +52,6 @@
     <Compile Include="DataWithVersion.cs" />
     <Compile Include="EventStorePublisher.cs" />
     <Compile Include="EventStore\EventStore.cs" />
-    <Compile Include="EventStore\EventStoreCopier.cs" />
     <Compile Include="EventStore\EventStoreForwarder.cs" />
     <Compile Include="EventStream.cs" />
     <Compile Include="IConsumesAsync.cs" />
