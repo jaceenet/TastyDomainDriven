@@ -12,7 +12,7 @@ build:
   project: TastyDomainDriven
 
 after_build:
-  - cmd: ECHO nuget pack TastyDomainDriven\TastyDomainDriven.nuspec -version "%GitVersion_NuGetVersion%" -prop "target=%CONFIGURATION%"
-  - cmd: nuget pack TastyDomainDriven\TastyDomainDriven.nuspec -version "%GitVersion_NuGetVersion%" -prop "target=%CONFIGURATION%"
-  - cmd: ECHO nuget pack TastyDomainDriven.Azure\TastyDomainDriven.Azure.nuspec -version "%GitVersion_NuGetVersion%" -prop "target=%CONFIGURATION%"
-  - cmd: nuget pack TastyDomainDriven.Azure\TastyDomainDriven.Azure.nuspec -version "%GitVersion_NuGetVersion%" -prop "target=%CONFIGURATION%"
+  - cmd: ECHO nuget pack TastyDomainDriven\TastyDomainDriven.csproj -version "%GitVersion_NuGetVersion%" -prop "target=%CONFIGURATION%"
+  - cmd: nuget pack TastyDomainDriven\TastyDomainDriven.csproj -version "%GitVersion_NuGetVersion%" -prop "target=%CONFIGURATION%"
+  - cmd: ECHO nuget pack TastyDomainDriven.Azure\TastyDomainDriven.Azure.csproj -version "%GitVersion_NuGetVersion%" -prop "target=%CONFIGURATION%" -IncludeReferencedProjects
+  - cmd: nuget pack TastyDomainDriven.Azure\TastyDomainDriven.Azure.csproj -version "%GitVersion_NuGetVersion%" -prop "target=%CONFIGURATION%" -IncludeReferencedProjects
