@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>TastyDomainDriven.AzureAppender\TastyDomainDriven.AzureAppender.csproj</id>
+    <id>TastyDomainDriven.Azure</id>
     <version>$version$</version>
     <authors>Jacob</authors>
     <owners>Jacob</owners>
