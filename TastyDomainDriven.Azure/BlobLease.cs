@@ -1,9 +1,8 @@
-﻿namespace TastyDomainDriven.AzureAppender
-{
-    using System;
+﻿using System;
+using Microsoft.WindowsAzure.Storage.Blob;
 
-    using Microsoft.WindowsAzure.Storage.Blob;
-    
+namespace TastyDomainDriven.Azure
+{
     public class BlobLease : IDisposable
     {
         private static readonly TheLogger Logger = TheLogManager.GetLogger(typeof(BlobLease));

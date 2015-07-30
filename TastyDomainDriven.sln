@@ -5,7 +5,7 @@ VisualStudioVersion = 14.0.22823.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TastyDomainDriven", "TastyDomainDriven\TastyDomainDriven.csproj", "{CBEA5276-6614-4AA7-AE3B-C06A53C0C2A2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TastyDomainDriven.AzureAppender", "TastyDomainDriven.AzureAppender\TastyDomainDriven.AzureAppender.csproj", "{212B8EFA-7033-4E8C-89D1-7454EF19340F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TastyDomainDriven.Azure", "TastyDomainDriven.Azure\TastyDomainDriven.Azure.csproj", "{212B8EFA-7033-4E8C-89D1-7454EF19340F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
