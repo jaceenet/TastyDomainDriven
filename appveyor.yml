@@ -9,7 +9,7 @@ before_build:
   - ps: gitversion /l console /output buildserver /updateAssemblyInfo
 
 build:
-  project: TastyDomainDriven
+  project: TastyDomainDriven.sln
 
 after_build:
   - cmd: ECHO nuget pack TastyDomainDriven\TastyDomainDriven.csproj -version "%GitVersion_NuGetVersion%" -prop "target=%CONFIGURATION%"
