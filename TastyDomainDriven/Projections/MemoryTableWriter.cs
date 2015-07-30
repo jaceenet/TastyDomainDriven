@@ -1,4 +1,5 @@
-﻿namespace TastyDomainDriven.Projections
+﻿#pragma warning disable 1998
+namespace TastyDomainDriven.Projections
 {
 	using System;
 	using System.Collections.Concurrent;
