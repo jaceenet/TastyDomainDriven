@@ -7,9 +7,9 @@ namespace TastyDomainDriven.Projections
 	using System.Linq;
 	using System.Threading.Tasks;
 
-	public class MemoryTableWriter<TEntity> : ITableReaderWriter<TEntity> where TEntity : ISingleKey
+	public class MemoryTableWriter<TEntity> : ITableReaderWriter<TEntity>
     {
-        private readonly ConcurrentDictionary<string, TEntity> items = new ConcurrentDictionary<string, TEntity>();
+        private readonly ConcurrentDictionary<int, TEntity> items = new ConcurrentDictionary<int, TEntity>();
 
 	    async Task Initialise(ITableReaderWriter<TEntity> from)
 	    {
@@ -33,7 +33,7 @@ namespace TastyDomainDriven.Projections
         public async Task<TEntity> Get(TEntity match)
         {
             TEntity item;
-            if (this.items.TryGetValue(match.GetIndexKey(), out item))
+            if (this.items.TryGetValue(match.GetHashCode(), out item))
             {
                 return await Task.FromResult(item);
             }
@@ -48,16 +48,16 @@ namespace TastyDomainDriven.Projections
 
         public async Task InsertOrUpdate(TEntity add, Func<TEntity, TEntity> update)
         {
-            Func<string, TEntity> addfun = s => add;
-            Func<string, TEntity, TEntity> updatefun = (s, entity) => update(entity);
+            Func<int, TEntity> addfun = s => add;
+            Func<int, TEntity, TEntity> updatefun = (s, entity) => update(entity);
 
-            this.items.AddOrUpdate(add.GetIndexKey(), addfun, updatefun);
+            this.items.AddOrUpdate(add.GetHashCode(), addfun, updatefun);
         }
 
 		public Task<TEntity> Remove(TEntity key)
 		{
 			TEntity item;
-			this.items.TryRemove(key.GetIndexKey(), out item);
+			this.items.TryRemove(key.GetHashCode(), out item);
 			return Task.FromResult(item);
 		}
     }
