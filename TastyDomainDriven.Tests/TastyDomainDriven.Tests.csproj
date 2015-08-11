@@ -61,6 +61,16 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TastyDomainDriven.Azure\TastyDomainDriven.Azure.csproj">
+      <Project>{212b8efa-7033-4e8c-89d1-7454ef19340f}</Project>
+      <Name>TastyDomainDriven.Azure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TastyDomainDriven\TastyDomainDriven.csproj">
+      <Project>{cbea5276-6614-4aa7-ae3b-c06a53c0c2a2}</Project>
+      <Name>TastyDomainDriven</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
