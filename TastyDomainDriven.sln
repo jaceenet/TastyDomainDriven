@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.22823.1
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TastyDomainDriven", "TastyDomainDriven\TastyDomainDriven.csproj", "{CBEA5276-6614-4AA7-AE3B-C06A53C0C2A2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TastyDomainDriven.Azure", "TastyDomainDriven.Azure\TastyDomainDriven.Azure.csproj", "{212B8EFA-7033-4E8C-89D1-7454EF19340F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TastyDomainDriven.Tests", "TastyDomainDriven.Tests\TastyDomainDriven.Tests.csproj", "{8670CF5B-2E1C-4FC3-A930-62F9B53063E8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{212B8EFA-7033-4E8C-89D1-7454EF19340F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{212B8EFA-7033-4E8C-89D1-7454EF19340F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{212B8EFA-7033-4E8C-89D1-7454EF19340F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8670CF5B-2E1C-4FC3-A930-62F9B53063E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8670CF5B-2E1C-4FC3-A930-62F9B53063E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8670CF5B-2E1C-4FC3-A930-62F9B53063E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8670CF5B-2E1C-4FC3-A930-62F9B53063E8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
