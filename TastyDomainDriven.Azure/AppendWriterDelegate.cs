@@ -7,5 +7,5 @@ namespace TastyDomainDriven.Azure
     /// </summary>
     /// <param name="offset">The offset.</param>
     /// <param name="source">The source.</param>
-    public delegate void AppendWriterDelegate(int offset, Stream source);
+    internal delegate void AppendWriterDelegate(int offset, Stream source);
 }

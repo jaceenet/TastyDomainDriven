@@ -3,7 +3,7 @@ using Microsoft.WindowsAzure.Storage.Blob;
 
 namespace TastyDomainDriven.Azure
 {
-    public class BlobLease : IDisposable
+	internal class BlobLease : IDisposable
     {
         private static readonly TheLogger Logger = TheLogManager.GetLogger(typeof(BlobLease));
 

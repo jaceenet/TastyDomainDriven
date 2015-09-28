@@ -87,6 +87,9 @@
     <Compile Include="IStateEvent.cs" />
     <Compile Include="Projections\IDocumentReaderWriter.cs" />
     <Compile Include="BaseEventPublisher.cs" />
+    <Compile Include="Projections\ProjectRegister.cs" />
+    <Compile Include="Projections\SerializableTableReaderWriter.cs" />
+    <Compile Include="Projections\FileReaderWriter.cs" />
     <Compile Include="Projections\TypeExtensions.cs" />
     <Compile Include="Saga\ISagaEventStore.cs" />
     <Compile Include="Saga\ISagaRoot.cs" />

@@ -56,7 +56,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MemoryTableReaderWriterTests.cs" />
+    <Compile Include="MyProjectionRegister.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TableReaderWriterSerializer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

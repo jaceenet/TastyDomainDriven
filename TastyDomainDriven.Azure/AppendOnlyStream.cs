@@ -7,7 +7,7 @@ namespace TastyDomainDriven.Azure
     /// Helps to write data to the underlying store, which accepts only
     /// pages with specific size
     /// </summary>
-    public sealed class AppendOnlyStream : IDisposable
+    internal sealed class AppendOnlyStream : IDisposable
     {
         readonly int _pageSizeInBytes;
         readonly AppendWriterDelegate _writer;

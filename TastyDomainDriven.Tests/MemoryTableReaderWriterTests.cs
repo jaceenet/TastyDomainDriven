@@ -39,6 +39,7 @@ namespace TastyDomainDriven.Tests
 		}		
 	}
 
+	[Serializable]
 	public class MyItem : ISingleKey
 	{
 		private string _name;
