@@ -10,8 +10,7 @@ namespace TastyDomainDriven.Providers
     {
         private readonly Dictionary<string, object> GetReaderWriterDef = new Dictionary<string, object>();
         private readonly Dictionary<string, Func<Task<IEnumerable>>> GetAllDelegates = new Dictionary<string, Func<Task<IEnumerable>>>();
-        private Dictionary<string, string> _etags = new Dictionary<string, string>();
-
+        
         public ITableReaderWriter<T> GetReaderWriter<T>(string name = null) where T : class
         {
             var key = name ?? typeof(T).Name;
@@ -56,7 +55,6 @@ namespace TastyDomainDriven.Providers
         {
             if (this.GetReaderWriterDef.ContainsKey(name) && this.GetAllDelegates.ContainsKey(name))
             {
-                _etags[name] = Guid.NewGuid().ToString("n");
                 return this.GetAllDelegates[name]();
             }
 
@@ -67,6 +65,8 @@ namespace TastyDomainDriven.Providers
 
         public void Dispose()
         {
+            this.GetAllDelegates.Clear();
+            this.GetReaderWriterDef.Clear();
         }
 
         public bool ContainsName(string name)
