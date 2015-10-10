@@ -65,6 +65,7 @@
     <Compile Include="ITableWriter.cs" />
     <Compile Include="Projections\CachedTableReaderWriter.cs" />
     <Compile Include="Projections\EventRegisterAsync.cs" />
+    <Compile Include="Projections\MemoryHashTableWriter.cs" />
     <Compile Include="Projections\MemoryTableWriter.cs" />
     <Compile Include="Projections\EventRegister.cs" />
     <Compile Include="Projections\ExtendDocumentWriter.cs" />
