@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace TastyDomainDriven.Projections
+namespace TastyDomainDriven.Providers
 {
     public abstract class BaseViewProvider : IDisposable, IViewProvider
     {
@@ -72,6 +72,6 @@ namespace TastyDomainDriven.Projections
         public bool ContainsName(string name)
         {
             return GetAllDelegates.ContainsKey(name);
-        }
+        }        
     }
 }

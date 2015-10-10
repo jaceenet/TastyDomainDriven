@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Threading.Tasks;
 
-namespace TastyDomainDriven.Projections
+namespace TastyDomainDriven.Providers
 {
     public interface IViewProvider
     {

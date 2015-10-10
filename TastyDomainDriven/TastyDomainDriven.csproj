@@ -46,6 +46,8 @@
     <Compile Include="AppendOnlyStoreConcurrencyException.cs" />
     <Compile Include="BaseEventStoreProjector.cs" />
     <Compile Include="BinaryFormatterSerializer.cs" />
+    <Compile Include="Bus\BusForServices.cs" />
+    <Compile Include="Bus\NoBus.cs" />
     <Compile Include="CommandExtensions.cs" />
     <Compile Include="CqrsRegistionExtensions.cs" />
     <Compile Include="DataWithName.cs" />
@@ -64,8 +66,10 @@
     <Compile Include="ITableReaderWriter.cs" />
     <Compile Include="ITableWriter.cs" />
     <Compile Include="Projections\CachedTableReaderWriter.cs" />
+    <Compile Include="Providers\BaseViewProvider.cs" />
     <Compile Include="Projections\EventRegisterAsync.cs" />
-    <Compile Include="Projections\MemoryHashTableWriter.cs" />
+    <Compile Include="Providers\ProjectionsProvider.cs" />
+    <Compile Include="Providers\IViewProvider.cs" />
     <Compile Include="Projections\MemoryTableWriter.cs" />
     <Compile Include="Projections\EventRegister.cs" />
     <Compile Include="Projections\ExtendDocumentWriter.cs" />
@@ -88,6 +92,8 @@
     <Compile Include="Projections\IDocumentReaderWriter.cs" />
     <Compile Include="BaseEventPublisher.cs" />
     <Compile Include="Projections\TypeExtensions.cs" />
+    <Compile Include="Providers\ProjectionInfo.cs" />
+    <Compile Include="Providers\ProjectionType.cs" />
     <Compile Include="ReaderMatch.cs" />
     <Compile Include="Saga\ISagaEventStore.cs" />
     <Compile Include="Saga\ISagaRoot.cs" />
