@@ -87,6 +87,7 @@
     <Compile Include="Projections\IDocumentReaderWriter.cs" />
     <Compile Include="BaseEventPublisher.cs" />
     <Compile Include="Projections\TypeExtensions.cs" />
+    <Compile Include="ReaderMatch.cs" />
     <Compile Include="Saga\ISagaEventStore.cs" />
     <Compile Include="Saga\ISagaRoot.cs" />
     <Compile Include="QueueBus.cs" />
@@ -95,6 +96,7 @@
     <Compile Include="ServiceFactory.cs" />
     <Compile Include="Bus\SqlLoggedBus.cs" />
     <Compile Include="Bus\SynchronBus.cs" />
+    <Compile Include="TableReaderExtensions.cs" />
     <Compile Include="TableWriterExtensions.cs" />
     <Compile Include="TheLogger.cs" />
     <Compile Include="Projections\DocumentReaderWriter.cs" />
