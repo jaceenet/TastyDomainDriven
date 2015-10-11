@@ -69,6 +69,7 @@
     <Compile Include="Projections\MemoryHashTableWriter.cs" />
     <Compile Include="Providers\BaseViewProvider.cs" />
     <Compile Include="Projections\EventRegisterAsync.cs" />
+    <Compile Include="Providers\MemoryViewProvider.cs" />
     <Compile Include="Providers\ProjectionPublisher.cs" />
     <Compile Include="Providers\ProjectionsProvider.cs" />
     <Compile Include="Providers\IViewProvider.cs" />
