@@ -30,7 +30,17 @@ namespace TastyDomainDriven.Providers
             return (ITableReaderWriter<T>)this.GetReaderWriterDef[key];
         }
 
-        public ITableReaderWriter<T> GetReaderWriterOrThrow<T>(string name = null) where T : class
+	    public object GetReaderWriter(string name)
+	    {
+		    if (this.GetReaderWriterDef.ContainsKey(name))
+		    {
+			    return this.GetReaderWriterDef[name];
+		    }
+
+			throw new ArgumentException("Missing value on key: " + name);
+	    }
+
+	    public ITableReaderWriter<T> GetReaderWriterOrThrow<T>(string name = null) where T : class
         {
             var key = name ?? typeof(T).Name;
 
