@@ -10,21 +10,41 @@ namespace TastyDomainDriven.Providers
     {
         private readonly Dictionary<string, object> GetReaderWriterDef = new Dictionary<string, object>();
         private readonly Dictionary<string, Func<Task<IEnumerable>>> GetAllDelegates = new Dictionary<string, Func<Task<IEnumerable>>>();
+		protected object _threadlock = new object();
         
+		/// <summary>
+		/// Gets the ITableReaderWriter threadsafe
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="name"></param>
+		/// <returns></returns>
         public ITableReaderWriter<T> GetReaderWriter<T>(string name = null) where T : class
         {
             var key = name ?? typeof(T).Name;
 
+	        if (this.GetReaderWriterDef.ContainsKey(key))
+	        {
+		        return (ITableReaderWriter<T>) this.GetReaderWriterDef[key];
+	        }
+
             if (!this.GetReaderWriterDef.ContainsKey(key))
             {
-                var instance = Create<T>(key);
-                this.GetReaderWriterDef.Add(key, instance);
+	            lock (_threadlock)
+	            {
+					if (this.GetReaderWriterDef.ContainsKey(key))
+					{
+						return (ITableReaderWriter<T>)this.GetReaderWriterDef[key];
+					}
 
-                this.GetAllDelegates.Add(key, async () =>
-                {
-                    List<T> item = await instance.GetAll();
-                    return item.AsEnumerable();
-                });
+					var instance = Create<T>(key);
+					this.GetReaderWriterDef.Add(key, instance);
+
+					this.GetAllDelegates.Add(key, async () =>
+					{
+						List<T> item = await instance.GetAll();
+						return item.AsEnumerable();
+					});
+				}
             }
 
             return (ITableReaderWriter<T>)this.GetReaderWriterDef[key];
