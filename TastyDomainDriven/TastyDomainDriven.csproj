@@ -44,6 +44,14 @@
     <Compile Include="AggregateService\AggregateService.cs" />
     <Compile Include="AggregateState.cs" />
     <Compile Include="AppendOnlyStoreConcurrencyException.cs" />
+    <Compile Include="AsyncImpl\AsyncCommandDispatcherBase.cs" />
+    <Compile Include="AsyncImpl\AsyncFrom.cs" />
+    <Compile Include="AsyncImpl\AsyncProjectFromImplementation.cs" />
+    <Compile Include="AsyncImpl\CompositeAsyncCommandDispatcher.cs" />
+    <Compile Include="AsyncImpl\CompositeAsyncProjection.cs" />
+    <Compile Include="AsyncImpl\EventStorePublisher.cs" />
+    <Compile Include="AsyncImpl\IAsyncProjection.cs" />
+    <Compile Include="AsyncImpl\IAsyncCommandDispatcher.cs" />
     <Compile Include="BaseEventStoreProjector.cs" />
     <Compile Include="BinaryFormatterSerializer.cs" />
     <Compile Include="Bus\BusForServices.cs" />
