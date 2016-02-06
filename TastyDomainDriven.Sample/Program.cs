@@ -25,7 +25,7 @@ namespace TastyDomainDriven.Sample
 
             IAsyncProjection projection = new ConsoleProjection(new AsyncProjectFromImplementation(new SayingHistoryProjection(said)));
 
-            IEventStore es2 = new EventStorePublisher2(es, projection);
+            IEventStore es2 = new EventStoreForAsyncProjection(es, projection);
             IAsyncCommandDispatcher dispatcher = new ConsoleLoggerDispatcher(new CompositeAsyncCommandDispatcher(new SaySomething(es2)));
 
             await dispatcher.Dispatch(new SayCommand()
