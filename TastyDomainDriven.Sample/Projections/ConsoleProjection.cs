@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using TastyDomainDriven.AsyncImpl;
 
-namespace TastyDomainDriven.Sample
+namespace TastyDomainDriven.Sample.Projections
 {
     internal sealed class ConsoleProjection : IAsyncProjection
     {

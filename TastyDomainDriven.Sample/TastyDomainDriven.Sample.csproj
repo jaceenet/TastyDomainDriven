@@ -33,6 +33,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ServiceStack.Text, Version=4.0.52.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ServiceStack.Text.4.0.52\lib\net40\ServiceStack.Text.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -45,8 +49,10 @@
   <ItemGroup>
     <Compile Include="Commands\SayCommand.cs" />
     <Compile Include="CommandServices\SaySomething.cs" />
-    <Compile Include="ConsoleLoggerDispatcher.cs" />
-    <Compile Include="ConsoleProjection.cs" />
+    <Compile Include="CommandServices\ConsoleLoggerDispatcher.cs" />
+    <Compile Include="Projections\ConsoleProjection.cs" />
+    <Compile Include="Projections\MyDtoConverters.cs" />
+    <Compile Include="FastJsonSerializer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Projections\Saying.cs" />
     <Compile Include="Projections\SayingHistoryProjection.cs" />
@@ -55,9 +61,11 @@
     <Compile Include="Properties\PersonId.cs" />
     <Compile Include="Events\PersonSaidEvent.cs" />
     <Compile Include="Properties\StateOfPerson.cs" />
+    <Compile Include="Projections\SayingDto.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

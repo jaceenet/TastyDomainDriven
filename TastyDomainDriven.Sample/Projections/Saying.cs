@@ -4,16 +4,16 @@ namespace TastyDomainDriven.Sample.Projections
 {
     public class Saying
     {
-        private readonly PersonId personId;
-
         public Saying(PersonId personId)
         {
-            this.personId = personId;
+            this.PersonId = personId;
         }
+
+        public PersonId PersonId { get; set; }
 
         protected bool Equals(Saying other)
         {
-            return personId.Equals(other.personId);
+            return PersonId.Equals(other.PersonId);
         }
 
         public override bool Equals(object obj)
@@ -26,7 +26,7 @@ namespace TastyDomainDriven.Sample.Projections
 
         public override int GetHashCode()
         {
-            return personId.GetHashCode();
+            return PersonId.GetHashCode();
         }
 
         public string Said { get; set; }

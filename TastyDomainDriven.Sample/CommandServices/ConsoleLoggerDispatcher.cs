@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using TastyDomainDriven.AsyncImpl;
 
-namespace TastyDomainDriven.Sample
+namespace TastyDomainDriven.Sample.CommandServices
 {
     public sealed class ConsoleLoggerDispatcher : IAsyncCommandDispatcher
     {

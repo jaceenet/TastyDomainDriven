@@ -111,6 +111,9 @@
     <Compile Include="QueueBus.cs" />
     <Compile Include="Saga\SagaRoot.cs" />
     <Compile Include="Saga\SagaService.cs" />
+    <Compile Include="Serialization\IDtoConverter.cs" />
+    <Compile Include="Serialization\IDtoSerializer.cs" />
+    <Compile Include="Serialization\TableWriterForSerializer.cs" />
     <Compile Include="ServiceFactory.cs" />
     <Compile Include="Bus\SqlLoggedBus.cs" />
     <Compile Include="Bus\SynchronBus.cs" />

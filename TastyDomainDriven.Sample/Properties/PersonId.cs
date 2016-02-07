@@ -5,7 +5,7 @@ namespace TastyDomainDriven.Sample.Properties
     [Serializable]
     public struct PersonId : IIdentity
     {
-        private readonly int id;
+        public readonly int id;
 
         public PersonId(int id)
         {
