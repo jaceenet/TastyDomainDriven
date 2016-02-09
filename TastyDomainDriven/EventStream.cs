@@ -7,6 +7,6 @@
         // version of the event stream returned
         public long Version;
         // all events in the stream
-        public List<IEvent> Events = new List<IEvent>();
+        public IEvent[] Events;
     }
 }

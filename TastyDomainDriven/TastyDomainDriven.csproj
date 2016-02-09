@@ -61,8 +61,15 @@
     <Compile Include="DataWithName.cs" />
     <Compile Include="DataWithVersion.cs" />
     <Compile Include="EventStorePublisher.cs" />
+    <Compile Include="EventStoreSteam\AppenderRecord.cs" />
+    <Compile Include="EventStoreSteam\IEventRecordSerializer.cs" />
+    <Compile Include="EventStoreSteam\IEventStore.cs" />
+    <Compile Include="EventStoreSteam\IEventstoreStreamRecord.cs" />
+    <Compile Include="EventStoreSteam\MasterIndexEvent.cs" />
+    <Compile Include="EventStoreSteam\MemoryStreamAppender.cs" />
     <Compile Include="EventStore\EventStore.cs" />
     <Compile Include="EventStore\EventStoreForwarder.cs" />
+    <Compile Include="EventStoreSteam\EventStoreStream.cs" />
     <Compile Include="EventStream.cs" />
     <Compile Include="IConsumesAsync.cs" />
     <Compile Include="IEventForNamedSource.cs" />
