@@ -64,6 +64,7 @@
     <Compile Include="EventStore\EventStore.cs" />
     <Compile Include="EventStore\EventStoreForwarder.cs" />
     <Compile Include="EventStream.cs" />
+    <Compile Include="File\FileRecord.cs" />
     <Compile Include="IConsumesAsync.cs" />
     <Compile Include="IEventForNamedSource.cs" />
     <Compile Include="IEventPublisher.cs" />

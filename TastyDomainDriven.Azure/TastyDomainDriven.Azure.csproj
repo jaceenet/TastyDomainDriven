@@ -74,6 +74,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppendOnlyStream.cs" />
+    <Compile Include="AzureBlob\AzureBlobAppender.cs" />
+    <Compile Include="AzureBlob\BlobIndex.cs" />
+    <Compile Include="AzureBlob\FolderIndexVersion.cs" />
     <Compile Include="AzureTableWriter.cs" />
     <Compile Include="BlobAppendOnlyStore.cs" />
     <Compile Include="AppendWriterDelegate.cs" />
