@@ -23,12 +23,12 @@ namespace TastyDomainDriven.Azure.AzureBlob
         /// </summary>
         /// <param name="storage">Connection</param>
         /// <param name="container">Azure blob container</param>
-        /// <param name="prefix">prefix if you wanna write to a sub path</param>
+        /// <param name="directoryNaming">directoryNaming if you wanna write to a sub path</param>
         /// <param name="leaseTime">You can acquire leases for 15s up to 60s or you can acquire a lease for an infinite time period.</param>
-        public FolderIndexVersion(CloudStorageAccount storage, string container, string prefix = null, TimeSpan? leaseTime = null)
+        public FolderIndexVersion(CloudStorageAccount storage, string container, IDirectoryNaming directoryNaming, TimeSpan? leaseTime = null)
         {
             this.leaseTime = leaseTime ?? TimeSpan.FromSeconds(30); //You can acquire leases for 15s up to 60s or you can acquire a lease for an infinite time period.
-            this.blob = storage.CreateCloudBlobClient().GetContainerReference(container).GetAppendBlobReference(string.Concat(prefix, "index.txt"));
+            this.blob = storage.CreateCloudBlobClient().GetContainerReference(container).GetAppendBlobReference(directoryNaming.GetPath("index.txt"));
         }
 
         public async Task GetLeaseAndRead()

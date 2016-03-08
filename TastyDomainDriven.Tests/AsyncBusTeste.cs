@@ -16,7 +16,7 @@ namespace TastyDomainDriven.Tests
         {
             string container = "testing";
             string connection = "";
-            var appender = new AzureAsyncAppender(connection, container, "demo");
+            var appender = new AzureAsyncAppender(connection, container, new PrefixedDirectory("demo"));
             await appender.Initialize();
 
             var es = new EventStoreAsync(appender);
