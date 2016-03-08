@@ -12,6 +12,12 @@ namespace TastyDomainDriven.File
         public string Name { get; private set; }
         public long Version { get; private set; }
 
+        public byte[] Hash { get; private set; }
+
+        public FileRecord()
+        {
+        }
+
         public FileRecord(byte[] bytes, string name, long version)
         {
             this.Bytes = bytes;
@@ -36,9 +42,9 @@ namespace TastyDomainDriven.File
                     }
                     var bytes = memory.ToArray();
 
-                    memory.Write(bytes, 0, bytes.Length);
+                    stream.Write(bytes, 0, bytes.Length);
                 }
-
+                this.Hash = sha1.Hash;
                 stream.Write(sha1.Hash, 0, sha1.Hash.Length);
             }
         }
@@ -60,7 +66,9 @@ namespace TastyDomainDriven.File
 
                 this.Name = name;
                 this.Bytes = bytes;
-                                return true;
+                this.Hash = sha;
+                this.Version = version;
+                return true;
             }
             catch (EndOfStreamException)
             {

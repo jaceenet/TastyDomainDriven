@@ -49,9 +49,12 @@
     <Compile Include="AsyncImpl\AsyncProjectFromImplementation.cs" />
     <Compile Include="AsyncImpl\CompositeAsyncCommandDispatcher.cs" />
     <Compile Include="AsyncImpl\CompositeAsyncProjection.cs" />
+    <Compile Include="AsyncImpl\EventStoreAsync.cs" />
     <Compile Include="AsyncImpl\EventStorePublisher.cs" />
+    <Compile Include="AsyncImpl\IAppendOnlyAsync.cs" />
     <Compile Include="AsyncImpl\IAsyncProjection.cs" />
     <Compile Include="AsyncImpl\IAsyncCommandDispatcher.cs" />
+    <Compile Include="AsyncImpl\IEventStoreAsync.cs" />
     <Compile Include="BaseEventStoreProjector.cs" />
     <Compile Include="BinaryFormatterSerializer.cs" />
     <Compile Include="Bus\BusForServices.cs" />

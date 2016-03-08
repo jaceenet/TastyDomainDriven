@@ -1,8 +1,8 @@
-﻿namespace TastyDomainDriven
-{
-    using System.Collections.Generic;
+﻿using System.Threading.Tasks;
 
-    public interface IAppendOnlyStore
+namespace TastyDomainDriven.AsyncImpl
+{
+    public interface IAppendOnlyAsync
     {
         /// <summary>
         /// <para>
@@ -15,7 +15,7 @@
         /// <param name="expectedStreamVersion">The server version (supply -1 to append without check).</param>
         /// <exception cref="AppendOnlyStoreConcurrencyException">thrown when expected server version is
         /// supplied and does not match to server version</exception>
-        void Append(string streamName, byte[] data, long expectedStreamVersion = -1);
+        Task Append(string streamName, byte[] data, long expectedStreamVersion = -1);
         /// <summary>
         /// Reads the records by stream name.
         /// </summary>
@@ -23,13 +23,15 @@
         /// <param name="afterVersion">The after version.</param>
         /// <param name="maxCount">The max count.</param>
         /// <returns></returns>
-        IEnumerable<DataWithVersion> ReadRecords(string streamName, long afterVersion, int maxCount);
+        Task<DataWithVersion[]> ReadRecords(string streamName, long afterVersion, int maxCount);
         /// <summary>
         /// Reads the records across all streams.
         /// </summary>
         /// <param name="afterVersion">The after version.</param>
         /// <param name="maxCount">The max count.</param>
         /// <returns></returns>
-        IEnumerable<DataWithName> ReadRecords(long afterVersion, int maxCount);        
+        Task<DataWithName[]> ReadRecords(long afterVersion, int maxCount);        
     }
+
+
 }
