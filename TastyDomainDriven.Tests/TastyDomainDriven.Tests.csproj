@@ -89,6 +89,7 @@
   <ItemGroup>
     <Compile Include="AsyncBusTeste.cs" />
     <Compile Include="BigEventData.cs" />
+    <Compile Include="DirectoryNamingTest.cs" />
     <Compile Include="GuidId.cs" />
     <Compile Include="MemoryTableReaderWriterTests.cs" />
     <Compile Include="MoreSolidTeset.cs" />

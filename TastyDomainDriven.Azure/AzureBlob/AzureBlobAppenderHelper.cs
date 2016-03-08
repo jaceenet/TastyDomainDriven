@@ -12,19 +12,19 @@ namespace TastyDomainDriven.Azure.AzureBlob
     public class AzureBlobAppenderHelper
     {
         private readonly string container;
-        private readonly string pathprefix;
+        private readonly IDirectoryNaming directoryNaming;
         private CloudBlobContainer client;
         private List<string> leases;
 
         public FolderIndexVersion index;
 
-        public AzureBlobAppenderHelper(CloudStorageAccount storage, string container, string pathprefix = "")
+        public AzureBlobAppenderHelper(CloudStorageAccount storage, string container, IDirectoryNaming directoryNaming)
         {
             this.container = container;
-            this.pathprefix = pathprefix;
+            this.directoryNaming = directoryNaming;
 
             this.client = storage.CreateCloudBlobClient().GetContainerReference(this.container);
-            this.index = new FolderIndexVersion(storage, container, this.pathprefix);
+            this.index = new FolderIndexVersion(storage, container, directoryNaming);
         }
 
         public async Task WriteContent(string name, byte[] content, long expectedStreamVersion)
@@ -101,7 +101,7 @@ namespace TastyDomainDriven.Azure.AzureBlob
 
         public CloudAppendBlob GetMasterCache()
         {
-            return this.client.GetAppendBlobReference($"{pathprefix}master.dat");
+            return this.client.GetAppendBlobReference(this.directoryNaming.GetPath("master.dat"));
         }
 
         public async Task<List<FileRecord>> ReadMasterCache()
@@ -151,12 +151,12 @@ namespace TastyDomainDriven.Azure.AzureBlob
 
         public CloudBlockBlob GetVersionStream(string name, long expectedStreamVersion)
         {
-            return this.client.GetBlockBlobReference($"{this.pathprefix}{name}/{expectedStreamVersion+1:00000000}_{DateTime.UtcNow:yyyy-MM-dd-hhmmss}_{name}.dat");
+            return this.client.GetBlockBlobReference(directoryNaming.GetPath($"{name}/{expectedStreamVersion + 1:00000000}_{DateTime.UtcNow:yyyy-MM-dd-hhmmss}_{name}.dat"));
         }
 
         private CloudAppendBlob GetStreamCache(string name)
         {
-            var blobName = $"{this.pathprefix}{name}/{name}_fullstream.dat";
+            var blobName = directoryNaming.GetPath($"{name}/{name}_fullstream.dat");
             return this.client.GetAppendBlobReference(blobName);
         }
     }

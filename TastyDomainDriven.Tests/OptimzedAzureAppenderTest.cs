@@ -14,7 +14,7 @@ namespace TastyDomainDriven.Tests
         public OptimzedAzureAppenderTest()
         {
             string connection = "";
-            this.appender = new AzureAsyncAppender(connection, "testing", "events");
+            this.appender = new AzureAsyncAppender(connection, "testing", new PrefixedDirectory("events"));
             this.eventstore = new EventStoreAsync(appender);
         }
 

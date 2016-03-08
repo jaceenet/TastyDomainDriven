@@ -78,7 +78,11 @@
     <Compile Include="AzureBlob\AzureBlobAppenderHelper.cs" />
     <Compile Include="AzureBlob\BlobIndex.cs" />
     <Compile Include="AzureBlob\ConcurrentIndexException.cs" />
+    <Compile Include="AzureBlob\DirectoryNaming.cs" />
     <Compile Include="AzureBlob\FolderIndexVersion.cs" />
+    <Compile Include="AzureBlob\IDirectoryNaming.cs" />
+    <Compile Include="AzureBlob\PrefixedDirectory.cs" />
+    <Compile Include="AzureBlob\CharReplaceNaming.cs" />
     <Compile Include="AzureTableWriter.cs" />
     <Compile Include="BlobAppendOnlyStore.cs" />
     <Compile Include="AppendWriterDelegate.cs" />
