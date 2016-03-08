@@ -30,4 +30,26 @@ namespace TastyDomainDriven.Sample.CommandServices
             this.Update(cmd.PersonId, x => x.Say(cmd.PersonId, cmd.Say, cmd.Timestamp));
         }
     }
+
+    public class SaySomethingAsync :
+        AsyncCommandDispatcher<PersonAggregate>
+    {
+        public SaySomethingAsync(IEventStoreAsync eventStore) : base(eventStore)
+        {
+        }
+
+        public override async Task Dispatch(ICommand command)
+        {
+            if (command is SayCommand)
+            {
+                await this.When(command as SayCommand);
+            }            
+        }
+
+        public async Task When(SayCommand cmd)
+        {
+            //validate cmd arguments here, before dispatch
+            await this.Update(cmd.PersonId, x => x.Say(cmd.PersonId, cmd.Say, cmd.Timestamp));            
+        }
+    }
 }
