@@ -1,11 +1,8 @@
-namespace TastyDomainDriven
+using System;
+
+namespace TastyDomainDriven.AggregateService
 {
-    using System;
-    using System.Linq;
-
-    using TastyDomainDriven.AggregateService;
-
-	public class AggregateService<TAggregateRoot> : IApplicationService
+    public class AggregateService<TAggregateRoot> : IApplicationService
         where TAggregateRoot : IAggregate, new()
     {
         private readonly IEventStore eventStorage;

@@ -19,5 +19,13 @@ namespace TastyDomainDriven.Tests
             var name = "name-37248776-4211-466D-A378-B38C3B2A921C";
             Assert.Equal("es/name/37248776/4211-466D-A378-B38C3B2A921C", naming.GetPath(name));
         }
+
+        [Fact]
+        public void TestGuidLikePath2()
+        {
+            IDirectoryNaming naming = new DirectoryNaming(new PrefixedDirectory("es"), new CharReplaceNaming('-', '/', 1));
+            var name = "name-37248776-4211-466D-A378-B38C3B2A921C";
+            Assert.Equal("es/name/37248776-4211-466D-A378-B38C3B2A921C", naming.GetPath(name));
+        }
     }
 }

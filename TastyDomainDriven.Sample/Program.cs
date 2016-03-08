@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using TastyDomainDriven.AggregateService;
 using TastyDomainDriven.AsyncImpl;
 using TastyDomainDriven.Memory;
 using TastyDomainDriven.Projections;
@@ -35,8 +36,8 @@ namespace TastyDomainDriven.Sample
 
         static async Task Run()
         {
-            IAppendOnlyStore appender = new MemoryAppendStore();
-            IEventStore es = new EventStore.EventStore(appender);
+            var appender = new MemoryAppendStoreAsync();
+            IEventStoreAsync es = new EventStoreAsync(appender);
 
             IDtoConverter<SayingDto, Saying> converter = new MyDtoConverters();
             Stream mem = System.IO.File.Open("test.json", FileMode.OpenOrCreate, FileAccess.ReadWrite);
@@ -46,15 +47,18 @@ namespace TastyDomainDriven.Sample
 
             IAsyncProjection projection = new ConsoleProjection(new AsyncProjectFromImplementation(new SayingHistoryProjection(said)));
 
-            IEventStore es2 = new EventStoreForAsyncProjection(es, projection);
-            IAsyncCommandDispatcher dispatcher = new ConsoleLoggerDispatcher(new CompositeAsyncCommandDispatcher(new SaySomething(es2)));
+            IEventStoreAsync es2 = new EventStoreAsyncPublisher(es, projection);
 
-            await dispatcher.Dispatch(new SayCommand()
+
+            //IAsyncCommandDispatcher dispatcher = new ConsoleLoggerDispatcher(new CompositeAsyncCommandDispatcher(new SaySomething(es2)));
+            ICommandHandler handler = new SaySomething(es2);
+
+            await handler.GetExecutor(new SayCommand()
             {
                 PersonId = new PersonId(1),
                 Say = "Say hello",
                 Timestamp = DateTime.UtcNow
-            });
+            }).Execute();
 
             foreach (var saying in said.GetAll().Result)
             {

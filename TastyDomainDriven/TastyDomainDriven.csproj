@@ -41,8 +41,11 @@
   <ItemGroup>
     <Compile Include="AddOrUpdateHint.cs" />
     <Compile Include="AggregateRoot.cs" />
+    <Compile Include="AggregateService\AggregateHandler.cs" />
     <Compile Include="AggregateService\AggregateService.cs" />
     <Compile Include="AggregateService\CreateAggregateByUpdateAsync.cs" />
+    <Compile Include="AggregateService\ICommandExecutor.cs" />
+    <Compile Include="AggregateService\ICommandHandler.cs" />
     <Compile Include="AggregateService\UpdateAggregateAsync.cs" />
     <Compile Include="AggregateState.cs" />
     <Compile Include="AppendOnlyStoreConcurrencyException.cs" />
@@ -62,6 +65,7 @@
     <Compile Include="BinaryFormatterSerializer.cs" />
     <Compile Include="Bus\BusForServices.cs" />
     <Compile Include="Bus\NoBus.cs" />
+    <Compile Include="AggregateService\Executor.cs" />
     <Compile Include="CommandExtensions.cs" />
     <Compile Include="CqrsRegistionExtensions.cs" />
     <Compile Include="DataWithName.cs" />
@@ -80,6 +84,7 @@
     <Compile Include="ITableReader.cs" />
     <Compile Include="ITableReaderWriter.cs" />
     <Compile Include="ITableWriter.cs" />
+    <Compile Include="Memory\MemoryAppendStoreAsync.cs" />
     <Compile Include="Projections\CachedTableReaderWriter.cs" />
     <Compile Include="Projections\MemoryHashTableWriter.cs" />
     <Compile Include="Providers\BaseViewProvider.cs" />
