@@ -11,7 +11,7 @@ namespace TastyDomainDriven.Tests
 {
     public class AsyncBusTeste
     {
-        [Fact]
+        [Fact(Skip = "needs connectionstring")]
         public async Task ExecuteCommand()
         {
             string container = "testing";

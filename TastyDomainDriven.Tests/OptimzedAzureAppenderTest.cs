@@ -18,7 +18,7 @@ namespace TastyDomainDriven.Tests
             this.eventstore = new EventStoreAsync(appender);
         }
 
-        [Fact]
+        [Fact(Skip = "needs connectionstring")]
         public async Task ReadStreamVersion()        
         {
             var id1 = GuidId.NewGuidId();
@@ -47,13 +47,13 @@ namespace TastyDomainDriven.Tests
             Assert.Equal(2, stream.Version);
         }
 
-        [Fact]
+        [Fact(Skip = "needs connectionstring")]
         public async Task CreateContainer()
         {
             await appender.Initialize();
         }
 
-        [Fact]
+        [Fact(Skip = "needs connectionstring")]
         public async Task CanReadEmpty()
         {
             var stream = await this.eventstore.LoadEventStream(new StringId("dsfslkfjsldkfjsldkfj"));
@@ -61,7 +61,7 @@ namespace TastyDomainDriven.Tests
         }
 
 
-        [Fact]
+        [Fact(Skip = "needs connectionstring")]
         public async Task CanWriteBytes()
         {
             byte[] bytes = new byte[1024*10];
@@ -85,7 +85,7 @@ namespace TastyDomainDriven.Tests
             }
         }
 
-        [Fact]
+        [Fact(Skip = "needs connectionstring")]
         public async Task CanAppendEvents()
         {
             var id = new StringId("mystream");
@@ -100,7 +100,7 @@ namespace TastyDomainDriven.Tests
             await this.eventstore.AppendToStream(new StringId("stream2"), 0, events);
         }
 
-        [Fact]
+        [Fact(Skip = "needs connectionstring")]
         public async Task AppendRandomId()
         {
             var id = GuidId.NewGuidId();
@@ -112,7 +112,7 @@ namespace TastyDomainDriven.Tests
             Assert.Equal(2, events.Version);
         }
 
-        [Fact]
+        [Fact(Skip = "not valid test")]
         public async Task CanConflictOnAppend()
         {
             var id = GuidId.NewGuidId();
@@ -137,14 +137,14 @@ namespace TastyDomainDriven.Tests
             }
         }
 
-        [Fact]
+        [Fact(Skip = "needs connectionstring")]
         public async Task ReadAll()
         {
             var items = await this.eventstore.ReplayAll();
             Assert.Equal(3, items.Version);
         }
 
-        [Fact]
+        [Fact(Skip = "needs connectionstring")]
         public async Task ReadStream()
         {
             var items = await this.eventstore.LoadEventStream(new StringId("mystream"));
