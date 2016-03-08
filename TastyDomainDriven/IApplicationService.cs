@@ -1,4 +1,6 @@
-﻿namespace TastyDomainDriven
+﻿using System.Threading.Tasks;
+
+namespace TastyDomainDriven
 {
     public interface IApplicationService
     {
@@ -9,5 +11,5 @@
         where T : ICommand
     {
         void When(T cmd);
-    }
+    }    
 }

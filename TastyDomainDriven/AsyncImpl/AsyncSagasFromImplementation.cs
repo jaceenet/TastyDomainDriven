@@ -1,18 +1,18 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using TastyDomainDriven.Projections;
 
 namespace TastyDomainDriven.AsyncImpl
 {
     /// <summary>
-    /// Find all <![CDATA[IConsumesAsync<T>]]> on the projections and invoke consume.
+    /// Find all <![CDATA[ISagaConsumesAsync<T>]]> on the projections and invoke consume.
     /// </summary>
-    public sealed class AsyncProjectFromImplementation : IAsyncProjection
+    public sealed class AsyncSagasFromImplementation : IAsyncProjection
     {
         private readonly EventRegisterAsync consumer;
 
-        public AsyncProjectFromImplementation(params object[] projections)
+        public AsyncSagasFromImplementation(params object[] projections)
         {
-            this.consumer = new EventRegisterAsync(typeof(IConsumesAsync<>));
+            this.consumer = new EventRegisterAsync(typeof(ISagaConsumesAsync<>));
 
             foreach (var p in projections)
             {
