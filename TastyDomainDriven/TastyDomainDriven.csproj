@@ -53,6 +53,7 @@
     <Compile Include="AsyncImpl\AsyncCommandDispatcherBase.cs" />
     <Compile Include="AsyncImpl\AsyncFrom.cs" />
     <Compile Include="AsyncImpl\AsyncProjectFromImplementation.cs" />
+    <Compile Include="AsyncImpl\AsyncSagasFromImplementation.cs" />
     <Compile Include="AsyncImpl\CompositeAsyncCommandDispatcher.cs" />
     <Compile Include="AsyncImpl\CompositeAsyncProjection.cs" />
     <Compile Include="AsyncImpl\EventStoreAsync.cs" />
