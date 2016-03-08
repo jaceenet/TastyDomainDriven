@@ -11,7 +11,6 @@ namespace TastyDomainDriven.Azure.AzureBlob
 {
     public class AzureBlobAppenderHelper
     {
-        private readonly CloudStorageAccount storage;
         private readonly string container;
         private readonly string pathprefix;
         private CloudBlobContainer client;
@@ -21,7 +20,6 @@ namespace TastyDomainDriven.Azure.AzureBlob
 
         public AzureBlobAppenderHelper(CloudStorageAccount storage, string container, string pathprefix = "")
         {
-            this.storage = storage;
             this.container = container;
             this.pathprefix = pathprefix;
 
@@ -139,10 +137,16 @@ namespace TastyDomainDriven.Azure.AzureBlob
             return records;
         }
 
-        public Task<List<FileRecord>> ReadStreamCache(string streamName)
+        public async Task<List<FileRecord>> ReadStreamCache(string streamName)
         {
             var blob = this.GetStreamCache(streamName);
-            return ReadStreamToRecords(blob);
+
+            if (await blob.ExistsAsync())
+            {
+                return await ReadStreamToRecords(blob);
+            }
+
+            return new List<FileRecord>();
         }
 
         public CloudBlockBlob GetVersionStream(string name, long expectedStreamVersion)
@@ -152,7 +156,8 @@ namespace TastyDomainDriven.Azure.AzureBlob
 
         private CloudAppendBlob GetStreamCache(string name)
         {
-            return this.client.GetAppendBlobReference($"{this.pathprefix}{name}/{name}_fullstream.dat");
+            var blobName = $"{this.pathprefix}{name}/{name}_fullstream.dat";
+            return this.client.GetAppendBlobReference(blobName);
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using TastyDomainDriven.AsyncImpl;
 using TastyDomainDriven.Azure.AzureBlob;
@@ -14,7 +13,8 @@ namespace TastyDomainDriven.Tests
 
         public OptimzedAzureAppenderTest()
         {
-            this.appender = new AzureAsyncAppender("", "testing", "events");
+            string connection = "";
+            this.appender = new AzureAsyncAppender(connection, "testing", "events");
             this.eventstore = new EventStoreAsync(appender);
         }
 
@@ -52,6 +52,14 @@ namespace TastyDomainDriven.Tests
         {
             await appender.Initialize();
         }
+
+        [Fact]
+        public async Task CanReadEmpty()
+        {
+            var stream = await this.eventstore.LoadEventStream(new StringId("dsfslkfjsldkfjsldkfj"));
+            Assert.Equal(0, stream.Version);
+        }
+
 
         [Fact]
         public async Task CanWriteBytes()

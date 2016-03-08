@@ -9,10 +9,11 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TastyDomainDriven.Tests</RootNamespace>
     <AssemblyName>TastyDomainDriven.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -86,6 +87,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AsyncBusTeste.cs" />
     <Compile Include="BigEventData.cs" />
     <Compile Include="GuidId.cs" />
     <Compile Include="MemoryTableReaderWriterTests.cs" />
@@ -102,6 +104,10 @@
     <ProjectReference Include="..\TastyDomainDriven.Azure\TastyDomainDriven.Azure.csproj">
       <Project>{212b8efa-7033-4e8c-89d1-7454ef19340f}</Project>
       <Name>TastyDomainDriven.Azure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TastyDomainDriven.Sample\TastyDomainDriven.Sample.csproj">
+      <Project>{2f6c34ae-f06c-48a9-9e72-ef0038dc0bfa}</Project>
+      <Name>TastyDomainDriven.Sample</Name>
     </ProjectReference>
     <ProjectReference Include="..\TastyDomainDriven\TastyDomainDriven.csproj">
       <Project>{cbea5276-6614-4aa7-ae3b-c06a53c0c2a2}</Project>
