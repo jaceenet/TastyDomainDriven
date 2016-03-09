@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,10 +14,11 @@ namespace TastyDomainDriven.Azure.AzureBlob
     {
         private readonly CloudBlobContainer client;
         private readonly string file;
-        private readonly TimeSpan? leaseTime;
+        private readonly TimeSpan leaseTime;
         private string lease = null;
         private bool gotlease = false;
         private CloudAppendBlob blob;
+        private Stopwatch leaseTimer = new Stopwatch();
 
         public Dictionary<string, BlobIndex> Hashes = new Dictionary<string, BlobIndex>();
         public List<BlobIndex> OrderedIndex = new List<BlobIndex>();
@@ -35,28 +37,60 @@ namespace TastyDomainDriven.Azure.AzureBlob
                 throw new ArgumentException("Leasetime must be between 15-60seconds");
             }
 
-            this.leaseTime = leaseTime ?? TimeSpan.FromSeconds(30); //You can acquire leases for 15s up to 60s or you can acquire a lease for an infinite time period.
+            this.leaseTime = leaseTime ?? TimeSpan.FromSeconds(60); //You can acquire leases for 15s up to 60s or you can acquire a lease for an infinite time period.
             this.blob = storage.CreateCloudBlobClient().GetContainerReference(container).GetAppendBlobReference(filename);
         }
 
-        public async Task<bool> GetLeaseAndRead()
+        public async Task<bool> GetLeaseAndRead(bool shouldexist = false)
         {
             if (gotlease)
             {
                 return true;
             }
 
-            return await GetLease();
+            return await GetLease(shouldexist);
         }
 
-        private async Task<bool> GetLease()
+        private async Task<bool> GetLease(bool shouldexist = false)
         {
             try
             {
-                this.lease = await this.blob.AcquireLeaseAsync(leaseTime, null);
+                if (!shouldexist)
+                {
+                    await this.CreateIfNotExist();
+                }
+
+                if (lease == null && !this.leaseTimer.IsRunning)
+                {
+                    this.lease = await this.blob.AcquireLeaseAsync(leaseTime, null);
+                    this.leaseTimer.Restart();
+                    return true;
+                }
+                else if (lease != null && leaseTime.Subtract(this.leaseTimer.Elapsed).TotalMilliseconds < 45000 )
+                {
+                    await this.blob.RenewLeaseAsync(new AccessCondition() { LeaseId = lease});
+                    this.leaseTimer.Restart();
+                    return true;
+                }
+
+                if (lease != null && this.leaseTimer.IsRunning && this.leaseTimer.Elapsed > this.leaseTime)
+                {
+                    return true;
+                }                               
+                                
             }
             catch (StorageException ex)
             {
+                if (ex.RequestInformation.HttpStatusCode == 404)
+                {
+                    if (shouldexist)
+                    {
+                        return await GetLease(false);
+                    }
+
+                    return false;
+                }
+
                 if (ex.RequestInformation.HttpStatusMessage == "There is already a lease present.")
                 {
                     return false;
@@ -76,20 +110,27 @@ namespace TastyDomainDriven.Azure.AzureBlob
         public async Task AppendWriteNoLease(FileRecord record, string filename)
         {
             using (var mem = new MemoryStream())
-            {
-                //await this.blob.DownloadToStreamAsync(mem);
-                var writer = new StreamWriter(mem);
-                var hashhex = string.Join(String.Empty, record.Hash.Select(x => x.ToString("x2")));
-                writer.WriteLine(String.Join("\t", record.Name, record.Version, hashhex, filename));
-                writer.Flush();
-                mem.Position = 0;
-
+            {               
                 if (lease != null)
                 {
+                    mem.Write(existingdata, 0, existingdata.Length);
+
+                    var writer = new StreamWriter(mem);
+                    var hashhex = string.Join(String.Empty, record.Hash.Select(x => x.ToString("x2")));
+                    writer.WriteLine(String.Join("\t", record.Name, record.Version, hashhex, filename));
+                    writer.Flush();
+                    mem.Position = 0;
+
                     await this.blob.UploadFromStreamAsync(mem, new AccessCondition() { LeaseId = this.lease }, new BlobRequestOptions(), null);
                 }
                 else
                 {
+                    var writer = new StreamWriter(mem);
+                    var hashhex = string.Join(String.Empty, record.Hash.Select(x => x.ToString("x2")));
+                    writer.WriteLine(String.Join("\t", record.Name, record.Version, hashhex, filename));
+                    writer.Flush();
+                    mem.Position = 0;
+
                     await this.blob.AppendBlockAsync(mem);
                 }                
             }
@@ -97,11 +138,20 @@ namespace TastyDomainDriven.Azure.AzureBlob
 
         private int LeaseTry = 0;
 
+        private byte[] existingdata = new byte[0];
+
         public async Task ReadIndex()
-        {            
+        {
+                        
             using (var mem = new MemoryStream())
             {
                 await this.blob.DownloadToStreamAsync(mem);
+
+                if (gotlease)
+                {
+                    this.existingdata = mem.ToArray();
+                }
+
                 this.Hashes.Clear();
                 this.OrderedIndex.Clear();
 
@@ -139,6 +189,11 @@ namespace TastyDomainDriven.Azure.AzureBlob
             {
                 await blob.UploadFromByteArrayAsync(new byte[0], 0, 0);
             }
+        }
+
+        public Task EnsureLease()
+        {
+            return this.GetLease(true);
         }
     }
 }

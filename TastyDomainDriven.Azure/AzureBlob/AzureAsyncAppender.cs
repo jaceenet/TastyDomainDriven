@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
@@ -15,8 +14,17 @@ namespace TastyDomainDriven.Azure.AzureBlob
         private readonly AzureBlobAppenderOptions options;
         private readonly CloudBlobContainer client;
         
-        public AzureAsyncAppender(string connection, string container, AzureBlobAppenderOptions options = null) : this(CloudStorageAccount.Parse(connection), container, options)
-        {            
+        public AzureAsyncAppender(string connection, string container, AzureBlobAppenderOptions options = null)
+        {
+            if (string.IsNullOrEmpty(connection))
+            {
+                throw new ArgumentNullException(nameof(connection));
+            }
+
+            this.storage = CloudStorageAccount.Parse(connection);
+            this.container = container;
+            this.options = options;
+            this.client = this.storage.CreateCloudBlobClient().GetContainerReference(container);
         }
 
         public AzureAsyncAppender(CloudStorageAccount storage, string container, AzureBlobAppenderOptions options = null)
@@ -37,6 +45,7 @@ namespace TastyDomainDriven.Azure.AzureBlob
             await client.CreateIfNotExistsAsync();
             var index = new FolderIndexVersion(storage, container, this.options.NamingPolicy.GetIndexPath());
             await index.Create();
+            await new AzureBlobAppenderHelper(storage, container, options).Prerequisites();
         }
 
         private int[] retrypolicy = new int[] {1000,2000,4000,8000};

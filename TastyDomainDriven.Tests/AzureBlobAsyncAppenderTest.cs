@@ -77,7 +77,8 @@ namespace TastyDomainDriven.Tests
         }
 
 
-        [Fact(Skip = "Missing connectionstring")]
+        [Fact]
+        //[Fact(Skip = "Missing connectionstring")]
         public async Task CanWriteBytes()
         {
             byte[] bytes = new byte[1024*10];
@@ -91,8 +92,6 @@ namespace TastyDomainDriven.Tests
 
             for (int i = 0; i < 10; i++)
             {
-
-
                 var t = Task.Run(async () =>
                 {
                     var guid = Guid.NewGuid();
@@ -110,6 +109,10 @@ namespace TastyDomainDriven.Tests
             }
 
             await Task.WhenAll(tasks.ToArray());
+
+            var stream = await this.appender.ReadRecords(0, int.MaxValue);
+            
+            Assert.Equal(10*7, stream.Length);
         }
 
         [Fact(Skip = "needs connectionstring")]

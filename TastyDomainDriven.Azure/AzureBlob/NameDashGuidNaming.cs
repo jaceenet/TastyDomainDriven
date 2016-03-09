@@ -23,7 +23,7 @@ namespace TastyDomainDriven.Azure.AzureBlob
 
         public string GetStreamPath(string streamid)
         {
-            return prefix + Fix(streamid) + streamid + ".dat";
+            return prefix + Fix(streamid) + "_stream.dat";
         }
 
         public string GetIndexPath()
@@ -33,7 +33,7 @@ namespace TastyDomainDriven.Azure.AzureBlob
 
         public string GetIndexPath(string streamid)
         {
-            return prefix + Fix(streamid) + "index.txt";
+            return prefix + Fix(streamid) + "_index.txt";
         }
 
         private string Fix(string streamid)
@@ -57,7 +57,7 @@ namespace TastyDomainDriven.Azure.AzureBlob
                         if (streamid.Equals(identity + "-" + g.ToString()) || streamid.Equals(identity + "-" + g.ToString("N")))
                         {
                             return string.Concat(identity, "/", g.ToString("N").Substring(0, 2), "/",
-                                g.ToString().Substring(2));
+                                g.ToString("N").Substring(2));
                         }
                     }
 

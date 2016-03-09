@@ -26,6 +26,6 @@ namespace TastyDomainDriven.Azure.AzureBlob
         /// </summary>
         /// <param name="streamid"></param>
         /// <returns></returns>
-        string GetIndexPath(string streamid);
+        string GetIndexPath(string streamid);        
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,23 +26,23 @@ namespace TastyDomainDriven.Azure.AzureBlob
             this.storage = storage;
             this.container = container;
             this.options = options ?? DefaultOptions;
-            this.client = storage.CreateCloudBlobClient().GetContainerReference(this.container);            
+            this.client = storage.CreateCloudBlobClient().GetContainerReference(this.container);
+            this.masterindex = new MasterIndex(new FileIndexLock(storage, container, options.NamingPolicy.GetIndexPath()));
         }
 
         public async Task WriteContent(string name, byte[] content, long expectedStreamVersion, int retry = 0)
         {
-            this.masterindex = new MasterIndex(new FileIndexLock(storage, container, options.NamingPolicy.GetIndexPath()));
             this.index = new FileIndexLock(storage, container, options.NamingPolicy.GetIndexPath(name));
-
+            
             try
             {
-                if (expectedStreamVersion == 0)
-                {
-                    await this.index.CreateIfNotExist();
-                    await this.masterindex.CreateIfNotExist();
-                }
+                //if (expectedStreamVersion == 0)
+                //{
+                //    await this.index.CreateIfNotExist();
+                //    await this.masterindex.CreateIfNotExist();
+                //}
 
-                var canWrite = await index.GetLeaseAndRead();
+                var canWrite = await index.GetLeaseAndRead(expectedStreamVersion != 0);
 
                 if (!canWrite)
                 {
@@ -55,8 +56,9 @@ namespace TastyDomainDriven.Azure.AzureBlob
                     await this.index.CreateIfNotExist();
                     await this.index.ReadIndex();
                     throw new AppendOnlyTimeoutException(expectedStreamVersion, index.OrderedIndex.Any() ? this.index.ReadLast().Version : 0, name);
-                }                
+                }
 
+                await this.index.ReadIndex();
                 var last = index.ReadLast();
 
                 if ((last == null && expectedStreamVersion != 0) || (last != null && expectedStreamVersion != last.Version) || (last != null && last.Version != expectedStreamVersion ))
@@ -65,10 +67,14 @@ namespace TastyDomainDriven.Azure.AzureBlob
                 }
 
                 var blobcache = GetStreamCache(name);
+                                
+                if (last == null)
+                {
+                    //no file, create the stream to append to...
+                    await blobcache.CreateOrReplaceAsync();
+                }
 
                 var master = this.GetMasterCache();
-
-                await CreateAppendStreamIfNotExist(master, blobcache, expectedStreamVersion);
 
                 using (var memstream = new MemoryStream())
                 {
@@ -86,11 +92,10 @@ namespace TastyDomainDriven.Azure.AzureBlob
                     });
 
                     var up1 = blobcache.AppendFromByteArrayAsync(mybytes, 0, mybytes.Length);
-                    //var up2 = master.AppendFromByteArrayAsync(mybytes, 0, mybytes.Length);
-
                     var up3 = index.AppendWrite(record, blobcache.Name);
                     var up4 = masterindex.AppendWrite(record, blobcache.Name);
 
+                    await index.EnsureLease();
                     if (!options.DisableMasterIndex)
                     {
                         await Task.WhenAll(up1, appendmaster, up3);
@@ -107,19 +112,14 @@ namespace TastyDomainDriven.Azure.AzureBlob
             }
         }
 
-        private async Task CreateAppendStreamIfNotExist(CloudAppendBlob master, CloudAppendBlob blobcache, long expectedversion)
+        internal async Task Prerequisites()
         {
-            //add to cachedmaster
-            if (!index.OrderedIndex.Any())
+            if (!this.GetMasterCache().Exists())
             {
-                await master.CreateOrReplaceAsync();
+                await this.GetMasterCache().CreateOrReplaceAsync();
             }
 
-            //add to cachedstream
-            if (expectedversion == 0)
-            {
-                await blobcache.CreateOrReplaceAsync();
-            }
+            await this.masterindex.CreateIfNotExist();
         }
 
         public CloudAppendBlob GetMasterCache()
