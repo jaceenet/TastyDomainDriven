@@ -1,30 +1,46 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.WindowsAzure.Storage;
 using TastyDomainDriven.AsyncImpl;
 using TastyDomainDriven.Azure.AzureBlob;
 using Xunit;
 
 namespace TastyDomainDriven.Tests
 {
-    public class OptimzedAzureAppenderTest
+    public class AzureBlobAsyncAppenderTest
     {
         private AzureAsyncAppender appender;
         private IEventStoreAsync eventstore;
+        private string connection;
+        private string container;
 
-        public OptimzedAzureAppenderTest()
+        public AzureBlobAsyncAppenderTest()
         {
-            string connection = "";
-            this.appender = new AzureAsyncAppender(connection, "testing", new PrefixedDirectory("events"));
+            this.connection = "";
+            this.container = "testing";
+            this.appender = new AzureAsyncAppender(connection, container, new AzureBlobAppenderOptions() {NamingPolicy = new NameDashGuidNaming("es")});
             this.eventstore = new EventStoreAsync(appender);
         }
 
-        [Fact(Skip = "needs connectionstring")]
-        public async Task ReadStreamVersion()        
+        [Fact(Skip = "Missing connectionstring")]
+        public async Task GetIndexAndLock()
+        {
+            var filelock = new FileIndexLock(CloudStorageAccount.Parse(this.connection), this.container, "lock.txt");
+            var filelock2 = new FileIndexLock(CloudStorageAccount.Parse(this.connection), this.container, "lock.txt");
+            await filelock.CreateIfNotExist();
+            await filelock.GetLeaseAndRead();
+            await filelock2.GetLeaseAndRead();
+            await Task.Delay(2000);
+            await filelock.Release();
+        }
+
+        [Fact(Skip = "Missing connectionstring")]
+        public async Task WriteTwoStreamsAndReadAll()        
         {
             var id1 = GuidId.NewGuidId();
             var id2 = GuidId.NewGuidId();
-            var id3 = GuidId.NewGuidId();
-
+            
             await
                 this.eventstore.AppendToStream(id1, 0,
                     new IEvent[] {BigEventData.Create(id1, 228)});
@@ -53,7 +69,7 @@ namespace TastyDomainDriven.Tests
             await appender.Initialize();
         }
 
-        [Fact(Skip = "needs connectionstring")]
+        [Fact(Skip = "Missing connectionstring")]
         public async Task CanReadEmpty()
         {
             var stream = await this.eventstore.LoadEventStream(new StringId("dsfslkfjsldkfjsldkfj"));
@@ -61,7 +77,8 @@ namespace TastyDomainDriven.Tests
         }
 
 
-        [Fact(Skip = "needs connectionstring")]
+        [Fact]
+        //[Fact(Skip = "Missing connectionstring")]
         public async Task CanWriteBytes()
         {
             byte[] bytes = new byte[1024*10];
@@ -71,18 +88,31 @@ namespace TastyDomainDriven.Tests
                 bytes[i] = 1;
             }
 
+            List<Task> tasks = new List<Task>();
+
             for (int i = 0; i < 10; i++)
             {
-                var guid = Guid.NewGuid();
+                var t = Task.Run(async () =>
+                {
+                    var guid = Guid.NewGuid();
+                    await appender.Append("test-" + guid, bytes, 0);
+                    await appender.Append("test-" + guid, bytes, 1);
+                    await appender.Append("test-" + guid, bytes, 2);
+                    await appender.Append("test-" + guid, bytes, 3);
+                    await appender.Append("test-" + guid, bytes, 4);
+                    await appender.Append("test-" + guid, bytes, 5);
+                    await appender.Append("test-" + guid, bytes, 6);
+                });
 
-                await appender.Append("test-" + guid, bytes, 0);
-                await appender.Append("test-" + guid, bytes, 1);
-                await appender.Append("test-" + guid, bytes, 2);
-                await appender.Append("test-" + guid, bytes, 3);
-                await appender.Append("test-" + guid, bytes, 4);
-                await appender.Append("test-" + guid, bytes, 5);
-                await appender.Append("test-" + guid, bytes, 6);
+                tasks.Add(t);
+
             }
+
+            await Task.WhenAll(tasks.ToArray());
+
+            var stream = await this.appender.ReadRecords(0, int.MaxValue);
+            
+            Assert.Equal(10*7, stream.Length);
         }
 
         [Fact(Skip = "needs connectionstring")]
@@ -100,6 +130,15 @@ namespace TastyDomainDriven.Tests
             await this.eventstore.AppendToStream(new StringId("stream2"), 0, events);
         }
 
+        [Fact(Skip = "Missing connectionstring")]
+        public async Task WriteSingleAppend()
+        {
+            var id = new StringId("test-" + Guid.NewGuid());
+            await
+                this.eventstore.AppendToStream(id, 0,
+                    new IEvent[] {BigEventData.Create(id, 120), BigEventData.Create(id, 110)});
+        }
+
         [Fact(Skip = "needs connectionstring")]
         public async Task AppendRandomId()
         {
@@ -112,7 +151,7 @@ namespace TastyDomainDriven.Tests
             Assert.Equal(2, events.Version);
         }
 
-        [Fact(Skip = "not valid test")]
+        [Fact(Skip = "Missing connectionstring")]
         public async Task CanConflictOnAppend()
         {
             var id = GuidId.NewGuidId();

@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,55 +11,68 @@ namespace TastyDomainDriven.Azure.AzureBlob
 {
     public class AzureBlobAppenderHelper
     {
+        private readonly CloudStorageAccount storage;
         private readonly string container;
-        private readonly IDirectoryNaming directoryNaming;
         private CloudBlobContainer client;
         private List<string> leases;
 
-        public FolderIndexVersion index;
+        public FileIndexLock index;
+        private AzureBlobAppenderOptions options;
+        private static readonly AzureBlobAppenderOptions DefaultOptions = new AzureBlobAppenderOptions() { NamingPolicy = new DefaultAzureNamingPolicy() };
+        private MasterIndex masterindex;
 
-        public AzureBlobAppenderHelper(CloudStorageAccount storage, string container, IDirectoryNaming directoryNaming)
+        public AzureBlobAppenderHelper(CloudStorageAccount storage, string container, AzureBlobAppenderOptions options)
         {
+            this.storage = storage;
             this.container = container;
-            this.directoryNaming = directoryNaming;
-
+            this.options = options ?? DefaultOptions;
             this.client = storage.CreateCloudBlobClient().GetContainerReference(this.container);
-            this.index = new FolderIndexVersion(storage, container, directoryNaming);
+            this.masterindex = new MasterIndex(new FileIndexLock(storage, container, options.NamingPolicy.GetIndexPath()));
         }
 
-        public async Task WriteContent(string name, byte[] content, long expectedStreamVersion)
+        public async Task WriteContent(string name, byte[] content, long expectedStreamVersion, int retry = 0)
         {
+            this.index = new FileIndexLock(storage, container, options.NamingPolicy.GetIndexPath(name));
+            
             try
             {
-                //Read the version file and keep a lock on it until write is done...          
-                try
+                //if (expectedStreamVersion == 0)
+                //{
+                //    await this.index.CreateIfNotExist();
+                //    await this.masterindex.CreateIfNotExist();
+                //}
+
+                var canWrite = await index.GetLeaseAndRead(expectedStreamVersion != 0);
+
+                if (!canWrite)
                 {
-                    await index.GetLeaseAndRead();
-                }
-                catch (StorageException ex)
-                {
-                    //"There is already a lease present."
-                    if (ex.RequestInformation.HttpStatusCode == 409)
+                    if (retry < options.RetryPolicy.Length)
                     {
-                        await index.ReadIndex();
-
-                        if (index.Aggregates.ContainsKey(name) && index.Aggregates[name].Any() &&
-                            expectedStreamVersion != index.Aggregates[name].Last().Version)
-                        {
-                            throw new AppendOnlyStoreConcurrencyException(expectedStreamVersion, index.Aggregates[name].Last().Version, name);
-                        }
+                        await Task.Delay(retry);
+                        await this.WriteContent(name, content, expectedStreamVersion, retry++);
+                        return;
                     }
+
+                    await this.index.CreateIfNotExist();
+                    await this.index.ReadIndex();
+                    throw new AppendOnlyTimeoutException(expectedStreamVersion, index.OrderedIndex.Any() ? this.index.ReadLast().Version : 0, name);
                 }
 
-                var last = index.ReadLast(name);
+                await this.index.ReadIndex();
+                var last = index.ReadLast();
 
-                if (last != null && last.Version != expectedStreamVersion)
+                if ((last == null && expectedStreamVersion != 0) || (last != null && expectedStreamVersion != last.Version) || (last != null && last.Version != expectedStreamVersion ))
                 {
-                    throw new AppendOnlyStoreConcurrencyException(expectedStreamVersion, last.Version, last.Name);
+                    throw new AppendOnlyStoreConcurrencyException(expectedStreamVersion, last?.Version ?? 0, name);
                 }
 
-                var blob = GetVersionStream(name, expectedStreamVersion);
                 var blobcache = GetStreamCache(name);
+                                
+                if (last == null)
+                {
+                    //no file, create the stream to append to...
+                    await blobcache.CreateOrReplaceAsync();
+                }
 
                 var master = this.GetMasterCache();
 
@@ -68,30 +81,30 @@ namespace TastyDomainDriven.Azure.AzureBlob
                     var record = new FileRecord(content, name, expectedStreamVersion + 1);
                     record.WriteContentToStream(memstream);
 
-                    memstream.Position = 0;
-                    await blob.UploadFromStreamAsync(memstream);
-                    await index.AppendWrite(record, blob.Name);
+                    var mybytes = memstream.ToArray();
 
-                    //add to cachedstream
-                    if (expectedStreamVersion == 0)
+                    var appendmaster = Task.Run(async () =>
                     {
-                        await blobcache.CreateOrReplaceAsync();
-                    }
+                        using (var masterstream = new MemoryStream(memstream.ToArray()))
+                        {
+                            await master.AppendBlockAsync(masterstream);
+                        }
+                    });
 
-                    memstream.Position = 0;
-                    await blobcache.AppendFromStreamAsync(memstream);
+                    var up1 = blobcache.AppendFromByteArrayAsync(mybytes, 0, mybytes.Length);
+                    var up3 = index.AppendWrite(record, blobcache.Name);
+                    var up4 = masterindex.AppendWrite(record, blobcache.Name);
 
-                    //add to cachedmaster
-                    if (!index.OrderedIndex.Any())
+                    await index.EnsureLease();
+                    if (!options.DisableMasterIndex)
                     {
-                        await master.CreateOrReplaceAsync();
+                        await Task.WhenAll(up1, appendmaster, up3);
                     }
-
-                    memstream.Position = 0;
-                    await master.AppendFromStreamAsync(memstream);
-                    await index.Release();
+                    else
+                    {
+                        await Task.WhenAll(up4, up1, appendmaster, up3);
+                    }
                 }
-
             }
             finally
             {
@@ -99,9 +112,19 @@ namespace TastyDomainDriven.Azure.AzureBlob
             }
         }
 
+        internal async Task Prerequisites()
+        {
+            if (!this.GetMasterCache().Exists())
+            {
+                await this.GetMasterCache().CreateOrReplaceAsync();
+            }
+
+            await this.masterindex.CreateIfNotExist();
+        }
+
         public CloudAppendBlob GetMasterCache()
         {
-            return this.client.GetAppendBlobReference(this.directoryNaming.GetPath("master.dat"));
+            return this.client.GetAppendBlobReference(this.options.NamingPolicy.GetMasterPath());
         }
 
         public async Task<List<FileRecord>> ReadMasterCache()
@@ -149,14 +172,15 @@ namespace TastyDomainDriven.Azure.AzureBlob
             return new List<FileRecord>();
         }
 
-        public CloudBlockBlob GetVersionStream(string name, long expectedStreamVersion)
-        {
-            return this.client.GetBlockBlobReference(directoryNaming.GetPath($"{name}/{expectedStreamVersion + 1:00000000}_{DateTime.UtcNow:yyyy-MM-dd-hhmmss}_{name}.dat"));
-        }
+        //public CloudBlockBlob GetVersionStream(string name, long expectedStreamVersion)
+        //{
+        //    return this.client.GetBlockBlobReference(options.NamingPolicy.get);
+        // $"{name}/{expectedStreamVersion + 1:00000000}_{DateTime.UtcNow:yyyy-MM-dd-hhmmss}_{name}.dat"
+        //}
 
         private CloudAppendBlob GetStreamCache(string name)
         {
-            var blobName = directoryNaming.GetPath($"{name}/{name}_fullstream.dat");
+            var blobName = options.NamingPolicy.GetStreamPath(name);
             return this.client.GetAppendBlobReference(blobName);
         }
     }
