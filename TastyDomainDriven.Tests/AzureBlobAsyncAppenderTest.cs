@@ -77,8 +77,8 @@ namespace TastyDomainDriven.Tests
         }
 
 
-        [Fact]
-        //[Fact(Skip = "Missing connectionstring")]
+        //[Fact]
+        [Fact(Skip = "Missing connectionstring")]
         public async Task CanWriteBytes()
         {
             byte[] bytes = new byte[1024*10];
