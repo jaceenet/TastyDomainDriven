@@ -12,18 +12,18 @@ namespace TastyDomainDriven.Azure.AzureBlob
     {
         private readonly CloudStorageAccount storage;
         private readonly string container;
-        private readonly IDirectoryNaming directoryNaming;
+        private readonly AzureBlobAppenderOptions options;
         private readonly CloudBlobContainer client;
         
-        public AzureAsyncAppender(string connection, string container, IDirectoryNaming directoryNaming) : this(CloudStorageAccount.Parse(connection), container, directoryNaming)
+        public AzureAsyncAppender(string connection, string container, AzureBlobAppenderOptions options = null) : this(CloudStorageAccount.Parse(connection), container, options)
         {            
         }
 
-        public AzureAsyncAppender(CloudStorageAccount storage, string container, IDirectoryNaming directoryNaming)
+        public AzureAsyncAppender(CloudStorageAccount storage, string container, AzureBlobAppenderOptions options = null)
         {
             this.storage = storage;
             this.container = container;
-            this.directoryNaming = directoryNaming;
+            this.options = options;
             this.client = this.storage.CreateCloudBlobClient().GetContainerReference(container);
         }
 
@@ -35,7 +35,7 @@ namespace TastyDomainDriven.Azure.AzureBlob
         public async Task Initialize()
         {
             await client.CreateIfNotExistsAsync();
-            var index = new FolderIndexVersion(storage, container, directoryNaming);
+            var index = new FolderIndexVersion(storage, container, this.options.NamingPolicy.GetIndexPath());
             await index.Create();
         }
 
@@ -47,7 +47,7 @@ namespace TastyDomainDriven.Azure.AzureBlob
 
             try
             {
-                var azurehelper = new AzureBlobAppenderHelper(this.storage, this.container, this.directoryNaming);
+                var azurehelper = new AzureBlobAppenderHelper(this.storage, this.container, this.options);
                 await azurehelper.WriteContent(streamName, data, expectedStreamVersion);
             }
             catch (ConcurrentIndexException)
@@ -73,7 +73,7 @@ namespace TastyDomainDriven.Azure.AzureBlob
         {
             try
             {
-                var azurehelper = new AzureBlobAppenderHelper(this.storage, this.container, this.directoryNaming);
+                var azurehelper = new AzureBlobAppenderHelper(this.storage, this.container, this.options);
                 var items = await azurehelper.ReadStreamCache(streamName);
                 return items.Where(x => x.Version > afterVersion && x.Version <= maxCount).Select(x => new DataWithVersion(x.Version, x.Bytes)).ToArray();
             }
@@ -89,7 +89,7 @@ namespace TastyDomainDriven.Azure.AzureBlob
         {
             try
             {
-                var azurehelper = new AzureBlobAppenderHelper(this.storage, this.container, this.directoryNaming);
+                var azurehelper = new AzureBlobAppenderHelper(this.storage, this.container, this.options);
                 var items = await azurehelper.ReadMasterCache();
                 return items.Where(x => x.Version > afterVersion && x.Version <= maxCount).Select(x => new DataWithName(x.Name, x.Bytes)).ToArray();
             }

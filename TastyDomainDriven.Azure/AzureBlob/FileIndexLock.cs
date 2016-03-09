@@ -9,64 +9,92 @@ using TastyDomainDriven.File;
 
 namespace TastyDomainDriven.Azure.AzureBlob
 {
-    public class FolderIndexVersion
+    public class FileIndexLock
     {
         private readonly CloudBlobContainer client;
         private readonly string file;
         private readonly TimeSpan? leaseTime;
         private string lease = null;
         private bool gotlease = false;
-        private ICloudBlob blob;
+        private CloudAppendBlob blob;
+
+        public Dictionary<string, BlobIndex> Hashes = new Dictionary<string, BlobIndex>();
+        public List<BlobIndex> OrderedIndex = new List<BlobIndex>();
 
         /// <summary>
         /// FileIndex for keeping order of events...
         /// </summary>
         /// <param name="storage">Connection</param>
         /// <param name="container">Azure blob container</param>
-        /// <param name="directoryNaming">directoryNaming if you wanna write to a sub path</param>
+        /// <param name="filename"></param>
         /// <param name="leaseTime">You can acquire leases for 15s up to 60s or you can acquire a lease for an infinite time period.</param>
-        public FolderIndexVersion(CloudStorageAccount storage, string container, string filename, TimeSpan? leaseTime = null)
+        public FileIndexLock(CloudStorageAccount storage, string container, string filename, TimeSpan? leaseTime = null)
         {
+            if (leaseTime.HasValue && (leaseTime.Value.TotalSeconds < 15 || leaseTime.Value.TotalSeconds > 60))
+            {
+                throw new ArgumentException("Leasetime must be between 15-60seconds");
+            }
+
             this.leaseTime = leaseTime ?? TimeSpan.FromSeconds(30); //You can acquire leases for 15s up to 60s or you can acquire a lease for an infinite time period.
             this.blob = storage.CreateCloudBlobClient().GetContainerReference(container).GetAppendBlobReference(filename);
         }
 
-        public async Task GetLeaseAndRead()
+        public async Task<bool> GetLeaseAndRead()
         {
             if (gotlease)
             {
-                return;
+                return true;
             }
 
-            await GetLease();
+            return await GetLease();
         }
 
-        private async Task GetLease()
+        private async Task<bool> GetLease()
         {
-            this.lease = await this.blob.AcquireLeaseAsync(leaseTime, null);
+            try
+            {
+                this.lease = await this.blob.AcquireLeaseAsync(leaseTime, null);
+            }
+            catch (StorageException ex)
+            {
+                if (ex.RequestInformation.HttpStatusMessage == "There is already a lease present.")
+                {
+                    return false;
+                }
+            }
             gotlease = true;
             await this.ReadIndex();
+            return true;
         }
 
         public async Task AppendWrite(FileRecord record, string filename)
         {
             await GetLeaseAndRead();
+            await AppendWriteNoLease(record, filename);
+        }
 
+        public async Task AppendWriteNoLease(FileRecord record, string filename)
+        {
             using (var mem = new MemoryStream())
             {
-                await this.blob.DownloadToStreamAsync(mem);
+                //await this.blob.DownloadToStreamAsync(mem);
                 var writer = new StreamWriter(mem);
                 var hashhex = string.Join(String.Empty, record.Hash.Select(x => x.ToString("x2")));
                 writer.WriteLine(String.Join("\t", record.Name, record.Version, hashhex, filename));
                 writer.Flush();
                 mem.Position = 0;
-                await this.blob.UploadFromStreamAsync(mem, new AccessCondition() { LeaseId = this.lease }, new BlobRequestOptions(), null);
+
+                if (lease != null)
+                {
+                    await this.blob.UploadFromStreamAsync(mem, new AccessCondition() { LeaseId = this.lease }, new BlobRequestOptions(), null);
+                }
+                else
+                {
+                    await this.blob.AppendBlockAsync(mem);
+                }                
             }
         }
 
-        public Dictionary<string, BlobIndex> Hashes = new Dictionary<string, BlobIndex>();        
-        public Dictionary<string, List<BlobIndex>> Aggregates = new Dictionary<string, List<BlobIndex>>();
-        public List<BlobIndex> OrderedIndex = new List<BlobIndex>();
         private int LeaseTry = 0;
 
         public async Task ReadIndex()
@@ -85,31 +113,15 @@ namespace TastyDomainDriven.Azure.AzureBlob
                     var line = reader.ReadLine().Split('\t');
                     var index = new BlobIndex() { Name = line[0], Version = int.Parse(line[1]), Hash = line[2], Path = line[2] };
 
-                    if (!Aggregates.ContainsKey(index.Name))
-                    {
-                        Aggregates[index.Name] = new List<BlobIndex>();
-                    }
-
                     Hashes[index.Hash] = index;
-                    Aggregates[index.Name].Add(index);
                     OrderedIndex.Add(index);
                 }
             }
         }
 
-        public BlobIndex ReadLast(string name)
+        public BlobIndex ReadLast()
         {
-            if (name == null)
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
-
-            if (this.Aggregates.ContainsKey(name))
-            {
-                return Aggregates[name].Last();
-            }
-
-            return null;
+            return OrderedIndex.LastOrDefault();
         }
 
         public async Task Release()
@@ -121,7 +133,7 @@ namespace TastyDomainDriven.Azure.AzureBlob
             }
         }
 
-        public async Task Create()
+        public async Task CreateIfNotExist()
         {
             if (!await this.blob.ExistsAsync())
             {

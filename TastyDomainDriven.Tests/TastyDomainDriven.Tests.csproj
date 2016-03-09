@@ -89,11 +89,10 @@
   <ItemGroup>
     <Compile Include="AsyncBusTeste.cs" />
     <Compile Include="BigEventData.cs" />
-    <Compile Include="DirectoryNamingTest.cs" />
     <Compile Include="GuidId.cs" />
     <Compile Include="MemoryTableReaderWriterTests.cs" />
     <Compile Include="EventstoreSuite\MoreSolidTeset.cs" />
-    <Compile Include="OptimzedAzureAppenderTest.cs" />
+    <Compile Include="AzureBlobAsyncAppenderTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StringId.cs" />
   </ItemGroup>

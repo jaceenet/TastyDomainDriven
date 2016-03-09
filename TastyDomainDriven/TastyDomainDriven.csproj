@@ -49,6 +49,7 @@
     <Compile Include="AggregateService\UpdateAggregateAsync.cs" />
     <Compile Include="AggregateState.cs" />
     <Compile Include="AppendOnlyStoreConcurrencyException.cs" />
+    <Compile Include="AppendOnlyTimeoutException.cs" />
     <Compile Include="AsyncImpl\AsyncCommandDispatcher.cs" />
     <Compile Include="AsyncImpl\AsyncCommandDispatcherBase.cs" />
     <Compile Include="AsyncImpl\AsyncFrom.cs" />
