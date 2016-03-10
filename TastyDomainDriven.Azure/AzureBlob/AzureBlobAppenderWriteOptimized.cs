@@ -57,6 +57,7 @@ namespace TastyDomainDriven.Azure.AzureBlob
             var helper = new AzureBlobAppenderHelper(storage, container, options);
 
             var master = helper.GetMasterCache();
+            master.StreamWriteSizeInBytes = 1024 * 1024 * 4;
 
             using (var masterindex = new MemoryStream())
             {
@@ -76,8 +77,8 @@ namespace TastyDomainDriven.Azure.AzureBlob
                     masterindex.Position = 0;
 
                     await master.CreateOrReplaceAsync();
-                    await master.AppendBlockAsync(stream);
-
+                    await master.AppendFromStreamAsync(stream);
+                    
                     var indexblob = storage.CreateCloudBlobClient().GetContainerReference(container).GetAppendBlobReference(this.options.NamingPolicy.GetIndexPath());
                     await indexblob.CreateOrReplaceAsync();
                     await indexblob.AppendFromStreamAsync(masterindex);
@@ -101,6 +102,7 @@ namespace TastyDomainDriven.Azure.AzureBlob
                         using (var s = new MemoryStream())
                         {
                             var blobstream = helper.GetStreamCache(name);
+                            blobstream.StreamWriteSizeInBytes = 1024*1024*3;
 
                             foreach (var record in this.records.Where(x => x.Name.Equals(name)).OrderBy(x => x.Version))
                             {
@@ -118,7 +120,7 @@ namespace TastyDomainDriven.Azure.AzureBlob
                             await indexblob.CreateOrReplaceAsync();
                             await indexblob.AppendFromStreamAsync(indexstream);
                             await blobstream.CreateOrReplaceAsync();
-                            await blobstream.AppendBlockAsync(s);
+                            await blobstream.AppendFromStreamAsync(s);
                         }
                     }
                 });
