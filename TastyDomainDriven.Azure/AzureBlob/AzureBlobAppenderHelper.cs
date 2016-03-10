@@ -9,7 +9,7 @@ using TastyDomainDriven.File;
 
 namespace TastyDomainDriven.Azure.AzureBlob
 {
-    public class AzureBlobAppenderHelper
+    internal class AzureBlobAppenderHelper
     {
         private readonly CloudStorageAccount storage;
         private readonly string container;
@@ -178,7 +178,7 @@ namespace TastyDomainDriven.Azure.AzureBlob
         // $"{name}/{expectedStreamVersion + 1:00000000}_{DateTime.UtcNow:yyyy-MM-dd-hhmmss}_{name}.dat"
         //}
 
-        private CloudAppendBlob GetStreamCache(string name)
+        internal CloudAppendBlob GetStreamCache(string name)
         {
             var blobName = options.NamingPolicy.GetStreamPath(name);
             return this.client.GetAppendBlobReference(blobName);
