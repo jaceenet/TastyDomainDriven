@@ -17,7 +17,7 @@ namespace TastyDomainDriven.Tests
 
         public AzureBlobAsyncAppenderFastTest()
         {
-            this.connection = "DefaultEndpointsProtocol=https;AccountName=gluudev;AccountKey=N175rsxah2qTy8R+QJYaVUKRLOqk53LMy+FmMFTZAsODgnVxWg8E9s0nE8f4s99giIMzeXm5dWb6Q5PjBYYjTA==";
+            this.connection = "";
             this.container = "testing";
             this.appender = new AzureBlobAppenderWriteOnce(connection, container, new AzureBlobAppenderOptions() {NamingPolicy = new NameDashGuidNaming("es")});
             this.eventstore = new EventStoreAsync(appender);
@@ -43,11 +43,11 @@ namespace TastyDomainDriven.Tests
             
             await
                 this.eventstore.AppendToStream(id1, 0,
-                    new IEvent[] {BigEventData.Create(id1, 228)});
+                    new IEvent[] {BigEventData.Create(id1, 1024*1024*3)});
 
             await
                 this.eventstore.AppendToStream(id1, 1,
-                    new IEvent[] { BigEventData.Create(id1, 118), BigEventData.Create(id1, 98), BigEventData.Create(id1, 328) });
+                    new IEvent[] { BigEventData.Create(id1, 1024 * 1024 * 2), BigEventData.Create(id1, 98), BigEventData.Create(id1, 328) });
 
             await
                 this.eventstore.AppendToStream(id1, 2,
