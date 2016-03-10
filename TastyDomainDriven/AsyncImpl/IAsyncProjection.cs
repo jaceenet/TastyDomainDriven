@@ -5,6 +5,6 @@ namespace TastyDomainDriven.AsyncImpl
 {
     public interface IAsyncProjection
     {
-        Task Consume(IEvent @event);
+        Task Consume<T>(T @event) where T : IEvent;
     }
 }

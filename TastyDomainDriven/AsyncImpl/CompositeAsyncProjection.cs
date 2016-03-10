@@ -11,7 +11,7 @@ namespace TastyDomainDriven.AsyncImpl
             this.projections = projections;
         }
 
-        public async Task Consume(IEvent @event)
+        public async Task Consume<T>(T @event) where T : IEvent
         {
             foreach (var projection in projections)
             {

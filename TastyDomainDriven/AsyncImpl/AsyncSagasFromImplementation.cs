@@ -20,7 +20,7 @@ namespace TastyDomainDriven.AsyncImpl
             }
         }
 
-        public async Task Consume(IEvent @event)
+        public async Task Consume<T>(T @event) where T: IEvent
         {
             await consumer.Consume(@event);
         }
