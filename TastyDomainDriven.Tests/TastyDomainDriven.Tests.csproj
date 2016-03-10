@@ -88,6 +88,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsyncBusTeste.cs" />
+    <Compile Include="AzureBlobAsyncAppenderFastTest.cs" />
     <Compile Include="BigEventData.cs" />
     <Compile Include="GuidId.cs" />
     <Compile Include="MemoryTableReaderWriterTests.cs" />

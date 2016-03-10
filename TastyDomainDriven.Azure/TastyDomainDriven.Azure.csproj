@@ -77,6 +77,7 @@
     <Compile Include="AzureBlob\AzureAsyncAppender.cs" />
     <Compile Include="AzureBlob\AzureBlobAppenderHelper.cs" />
     <Compile Include="AzureBlob\AzureBlobAppenderOptions.cs" />
+    <Compile Include="AzureBlob\AzureBlobAppenderWriteOptimized.cs" />
     <Compile Include="AzureBlob\BlobIndex.cs" />
     <Compile Include="AzureBlob\ConcurrentIndexException.cs" />
     <Compile Include="AzureBlob\DefaultAzureNamingPolicy.cs" />
