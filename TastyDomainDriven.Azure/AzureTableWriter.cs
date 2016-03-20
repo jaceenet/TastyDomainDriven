@@ -29,12 +29,14 @@ namespace TastyDomainDriven.Azure
 
         public DateTime EventTimestamp { get; set; }
 
-        public AzureTableWriter(string connectionString, string tablename)
+        public AzureTableWriter(string connectionString, string tablename) : this(CloudStorageAccount.Parse(connectionString), tablename)
+        {            
+        }
+
+        public AzureTableWriter(CloudStorageAccount storageAccount, string tablename)
         {
 			this.tablename = tablename.ToLowerInvariant();
             
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
-
             CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
 
             this.table = tableClient.GetTableReference(this.tablename);
