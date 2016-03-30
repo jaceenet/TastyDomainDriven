@@ -1,0 +1,105 @@
+﻿<#@ template debug="false" hostspecific="true" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+
+<#@ assembly name="$(TargetDir)TastyDomainDriven.Dsl.dll" #>
+<#@ import namespace="TastyDomainDriven.Dsl" #>
+
+<#@ output extension=".cs" #>
+
+<#
+var dsl = new EventDslReader();
+dsl.AddCsharpDefaults();
+dsl.ParseCsvFile(this.Host.ResolvePath("TextFile1.txt"));
+#>
+
+namespace Events
+{
+
+
+<# foreach(var ns in dsl.GetNamespaces()){ #>
+	using <#=ns#>;
+<# } #>
+
+<# foreach(var cl in dsl.GetEventObjects()){#>
+
+	public sealed class <#=cl.ClassName#>Event : TastyDomainDriven.IEvent
+    {<#foreach(var field in cl.PublicMembers){#>
+
+		private <#=field.PropertyType.TypeName#> <#=field.PrivateField#>;<# } #>
+
+
+        public <#=cl.ClassName#>Event(<#=string.Join(", ", cl.PrivateMembers.Select(x => string.Concat(x.PropertyType.TypeName, " ", x.InstanceVariable)))#>)
+        {
+			<#foreach(var field in cl.PrivateMembers){#>this.<#=field.PrivateField#> = <#=field.InstanceVariable#>;
+			<#}#>	
+		}
+
+        <#foreach(var field in cl.PublicMembers){#>
+		
+		
+		public <#=field.PropertyType.TypeName#> <#=field.PropertyName#> 
+		{ 
+			get 
+			{
+				return (<#=field.PropertyType.TypeName#>)this.<#=field.PrivateField#>; 
+			}	
+		} 					
+			<#}#>		
+			
+			<#}#>
+
+}
+
+namespace Serializers
+{
+	using Events;
+	using System.IO;
+
+<# foreach(var ns in dsl.GetNamespaces()){ #>
+	using <#=ns#>;
+<# } #>
+
+<# foreach(var cl in dsl.GetEventObjects()){#>
+
+	public sealed class <#=cl.ClassName#>Serializer
+    {
+		public void Write(<#=cl.ClassName#>Event obj, BinaryWriter binaryWriter)
+        {
+			<#foreach(var field in cl.PrivateMembers){#>if (obj.<#=field.PropertyName#> != <#=field.PropertyType.DefaultValue#>)
+            {
+				binaryWriter.Write(<#=field.Propertyid#>);
+                <#=field.PropertyType.WriteBinary("binaryWriter", string.Concat("obj.", field.PropertyName))#>;
+            }
+
+            binaryWriter.Write(0);
+			<#}#>	
+		}
+		
+		public <#=cl.ClassName#>Event Read(BinaryReader binaryReader)
+        {
+			<#foreach(var field in cl.PrivateMembers){#><#=field.PropertyType.TypeName#> <#=field.InstanceVariable#> = <#=field.PropertyType.DefaultValue#>;
+			<#}#>	
+
+			var field = binaryReader.ReadInt32();
+
+			while(field != 0)
+			{
+				<#foreach(var field in cl.PrivateMembers){#>if (field == <#=field.Propertyid#>)
+				{									
+					<#=field.InstanceVariable#> = <#=field.PropertyType.ReadBinary("binaryReader")#>;
+				}
+
+				<#}#>
+
+				field = binaryReader.ReadInt32();
+			}
+
+			return new <#=cl.ClassName#>Event(<#=string.Join(", ", cl.PrivateMembers.Select(x => x.InstanceVariable))#>);
+		}        
+    }
+
+<#}#>
+}

@@ -9,9 +9,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TastyDomainDriven.Sample</RootNamespace>
     <AssemblyName>TastyDomainDriven.Sample</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -78,6 +79,11 @@
     <Compile Include="Commands\SayCommand.cs" />
     <Compile Include="CommandServices\SaySomething.cs" />
     <Compile Include="CommandServices\ConsoleLoggerDispatcher.cs" />
+    <Compile Include="GeneratedEvents\Events.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Events.tt</DependentUpon>
+    </Compile>
     <Compile Include="PerformanceRun.cs" />
     <Compile Include="Projections\ConsoleProjection.cs" />
     <Compile Include="Projections\MyDtoConverters.cs" />
@@ -97,16 +103,29 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="GeneratedEvents\Events.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Events.cs</LastGenOutput>
+    </Content>
+    <Content Include="GeneratedEvents\TextFile1.txt" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TastyDomainDriven.Azure\TastyDomainDriven.Azure.csproj">
       <Project>{212B8EFA-7033-4E8C-89D1-7454EF19340F}</Project>
       <Name>TastyDomainDriven.Azure</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TastyDomainDriven.Dsl\TastyDomainDriven.Dsl.csproj">
+      <Project>{8c7c9451-f8ec-46ae-b41f-b94d0de25ad1}</Project>
+      <Name>TastyDomainDriven.Dsl</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TastyDomainDriven\TastyDomainDriven.csproj">
       <Project>{CBEA5276-6614-4AA7-AE3B-C06A53C0C2A2}</Project>
       <Name>TastyDomainDriven</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

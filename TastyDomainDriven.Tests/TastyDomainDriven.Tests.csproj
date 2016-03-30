@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TastyDomainDriven.Tests</RootNamespace>
     <AssemblyName>TastyDomainDriven.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
@@ -90,6 +90,7 @@
     <Compile Include="AsyncBusTeste.cs" />
     <Compile Include="AzureBlobAsyncAppenderFastTest.cs" />
     <Compile Include="BigEventData.cs" />
+    <Compile Include="DslReadTest.cs" />
     <Compile Include="GuidId.cs" />
     <Compile Include="MemoryTableReaderWriterTests.cs" />
     <Compile Include="EventstoreSuite\MoreSolidTeset.cs" />
@@ -105,6 +106,10 @@
     <ProjectReference Include="..\TastyDomainDriven.Azure\TastyDomainDriven.Azure.csproj">
       <Project>{212b8efa-7033-4e8c-89d1-7454ef19340f}</Project>
       <Name>TastyDomainDriven.Azure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TastyDomainDriven.Dsl\TastyDomainDriven.Dsl.csproj">
+      <Project>{8c7c9451-f8ec-46ae-b41f-b94d0de25ad1}</Project>
+      <Name>TastyDomainDriven.Dsl</Name>
     </ProjectReference>
     <ProjectReference Include="..\TastyDomainDriven.Sample\TastyDomainDriven.Sample.csproj">
       <Project>{2f6c34ae-f06c-48a9-9e72-ef0038dc0bfa}</Project>

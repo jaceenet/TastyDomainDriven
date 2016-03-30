@@ -32,6 +32,4 @@ namespace TastyDomainDriven.AsyncImpl
         /// <returns></returns>
         Task<DataWithName[]> ReadRecords(long afterVersion, int maxCount);        
     }
-
-
 }
