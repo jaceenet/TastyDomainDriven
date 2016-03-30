@@ -37,6 +37,11 @@ namespace TastyDomainDriven.Dsl
             {
                 found.Add("TastyDomainDriven");
             }
+
+            if (!found.Contains(typeof(IEventVersionSerializer).Namespace))
+            {
+                found.Add(typeof(IEventVersionSerializer).Namespace);
+            }
             return found.OrderBy(x => x).ToArray();
         }
 

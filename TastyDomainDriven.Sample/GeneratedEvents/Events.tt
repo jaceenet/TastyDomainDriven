@@ -28,7 +28,7 @@ namespace Events
 	public sealed class <#=cl.ClassName#>Event : TastyDomainDriven.IEvent
     {<#foreach(var field in cl.PublicMembers){#>
 
-		private <#=field.PropertyType.TypeName#> <#=field.PrivateField#>;<# } #>
+		private readonly <#=field.PropertyType.TypeName#> <#=field.PrivateField#>;<# } #>
 
 
         public <#=cl.ClassName#>Event(<#=string.Join(", ", cl.PrivateMembers.Select(x => string.Concat(x.PropertyType.TypeName, " ", x.InstanceVariable)))#>)
@@ -57,6 +57,7 @@ namespace Serializers
 {
 	using Events;
 	using System.IO;
+	using TastyDomainDriven.Dsl;
 
 <# foreach(var ns in dsl.GetNamespaces()){ #>
 	using <#=ns#>;
@@ -64,9 +65,9 @@ namespace Serializers
 
 <# foreach(var cl in dsl.GetEventObjects()){#>
 
-	public sealed class <#=cl.ClassName#>Serializer
+	public sealed class <#=cl.ClassName#>Serializer	: IEventVersionSerializer
     {
-		public void Write(<#=cl.ClassName#>Event obj, BinaryWriter binaryWriter)
+		private void WriteEvent(<#=cl.ClassName#>Event obj, BinaryWriter binaryWriter)
         {
 			<#foreach(var field in cl.PrivateMembers){#>if (obj.<#=field.PropertyName#> != <#=field.PropertyType.DefaultValue#>)
             {
@@ -78,7 +79,7 @@ namespace Serializers
 			<#}#>	
 		}
 		
-		public <#=cl.ClassName#>Event Read(BinaryReader binaryReader)
+		private <#=cl.ClassName#>Event ReadEvent(BinaryReader binaryReader)
         {
 			<#foreach(var field in cl.PrivateMembers){#><#=field.PropertyType.TypeName#> <#=field.InstanceVariable#> = <#=field.PropertyType.DefaultValue#>;
 			<#}#>	
@@ -99,7 +100,21 @@ namespace Serializers
 
 			return new <#=cl.ClassName#>Event(<#=string.Join(", ", cl.PrivateMembers.Select(x => x.InstanceVariable))#>);
 		}        
+
+		public int GetEventId { get { return <#=cl.ClassId#>; } }
+	    public Type EventType { get { return typeof (<#=cl.ClassName#>Event); } }
+
+		public void Write(object @event, BinaryWriter writer)
+	    {
+	        this.WriteEvent((MyNewEventEvent) @event, writer);
+	    }
+
+	    public object Read(BinaryReader reader)
+	    {
+	        return this.ReadEvent(reader);
+	    }
     }
 
-<#}#>
+	<#}#>
+}
 }

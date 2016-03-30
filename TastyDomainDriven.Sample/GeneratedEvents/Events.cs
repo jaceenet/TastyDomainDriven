@@ -12,10 +12,10 @@ namespace Events
 
 	public sealed class MyNewEventEvent : TastyDomainDriven.IEvent
     {
-		private string _id;
-		private IIdentity _aggregateId;
-		private Guid _eventId;
-		private DateTime _timestamp;
+		private readonly string _id;
+		private readonly IIdentity _aggregateId;
+		private readonly Guid _eventId;
+		private readonly DateTime _timestamp;
 
         public MyNewEventEvent(string id, Guid eventId, DateTime timestamp)
         {
@@ -70,14 +70,15 @@ namespace Serializers
 {
 	using Events;
 	using System.IO;
+	using TastyDomainDriven.Dsl;
 
 	using System;
 	using TastyDomainDriven;
 
 
-	public sealed class MyNewEventSerializer
+	public sealed class MyNewEventSerializer	: IEventVersionSerializer
     {
-		public void Write(MyNewEventEvent obj, BinaryWriter binaryWriter)
+		private void WriteEvent(MyNewEventEvent obj, BinaryWriter binaryWriter)
         {
 			if (obj.Id != null)
             {
@@ -103,7 +104,7 @@ namespace Serializers
 				
 		}
 		
-		public MyNewEventEvent Read(BinaryReader binaryReader)
+		private MyNewEventEvent ReadEvent(BinaryReader binaryReader)
         {
 			string id = null;
 			Guid eventId = Guid.Empty;
@@ -135,6 +136,20 @@ namespace Serializers
 
 			return new MyNewEventEvent(id, eventId, timestamp);
 		}        
+
+		public int GetEventId { get { return 199; } }
+	    public Type EventType { get { return typeof (MyNewEventEvent); } }
+
+		public void Write(object @event, BinaryWriter writer)
+	    {
+	        this.WriteEvent((MyNewEventEvent) @event, writer);
+	    }
+
+	    public object Read(BinaryReader reader)
+	    {
+	        return this.ReadEvent(reader);
+	    }
     }
 
+	}
 }
