@@ -9,7 +9,7 @@ namespace TastyDomainDriven.Tests
         [Fact]
         public void ReadSimpleType()
         {
-            var content = @"#byte;0;System";
+            var content = @"#byte;0;System;{0}.Write({1});{0}.ReadByte()";
 
             var dsl = new EventDslReader();
 

@@ -10,6 +10,11 @@ namespace TastyDomainDriven.Dsl
 
         public EventSerializeMapper(params IEventVersionSerializer[] serializers)
         {
+            this.Register(serializers);
+        }
+
+        public void Register(IEventVersionSerializer[] serializers)
+        {
             foreach (var serializer in serializers)
             {
                 try
@@ -30,7 +35,6 @@ namespace TastyDomainDriven.Dsl
                     throw new ArgumentException(string.Format("Serializer with EventType {0} is already added. The duplicate {1} could not be added. Check {2}", serializer.GetEventId, serializer.GetType().FullName, items_type[serializer.EventType].GetType()));
                 }
             }
-
         }
 
         public IEventVersionSerializer GetSerializer(object e)
