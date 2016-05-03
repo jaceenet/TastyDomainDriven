@@ -14,19 +14,16 @@ namespace TastyDomainDriven.File
         public class Options
         {
             public Options(string path)
-            {
-                this.ReadFromMasterStreamOnly = true;
+            {                
                 this.RootPath = path;
-                this.MasterStreamFileName = "master";
-                this.FileStream = s => Path.Combine(path, s + ".dat");
+                this.MasterStreamName = "master";
+                this.FileStream = s => Path.Combine(path, this.MasterStreamName+".dat");
             }
 
             public Func<string, string> FileStream { get; set; }
-
-            public bool ReadFromMasterStreamOnly { get; set; }
-
+            
             public string RootPath { get; set; }
-            public string MasterStreamFileName { get; set; }
+            public string MasterStreamName { get; set; }
         }
 
         public FileAppendOnlyStoreAsync(Options options)
@@ -46,10 +43,22 @@ namespace TastyDomainDriven.File
 
         public async Task Append(string streamName, byte[] data, long expectedStreamVersion = -1)
         {
-            using (Stream s = System.IO.File.Open(this.options.FileStream(streamName), FileMode.Append, FileAccess.ReadWrite))
+            var path = this.options.FileStream(options.MasterStreamName);
+            var streampath = this.options.FileStream(streamName);
+            
+            using (Stream s = System.IO.File.Open(path, FileMode.Append, FileAccess.Write, FileShare.Write))
             {
                 var record = new FileRecord(data, streamName, expectedStreamVersion + 1);
                 await record.WriteContentToStreamAsync(s);
+            }
+
+            if (!path.Equals(streampath))
+            {
+                using (Stream s = System.IO.File.Open(streampath, FileMode.Append, FileAccess.Write, FileShare.Write))
+                {
+                    var record = new FileRecord(data, streamName, expectedStreamVersion + 1);
+                    await record.WriteContentToStreamAsync(s);
+                }
             }
         }
 
@@ -70,7 +79,7 @@ namespace TastyDomainDriven.File
 
         public Task<DataWithName[]> ReadRecords(long afterVersion, int maxCount)
         {
-            var filename = this.options.FileStream(options.MasterStreamFileName);
+            var filename = this.options.FileStream(options.MasterStreamName);
 
             List<FileRecord> records;
             if (System.IO.File.Exists(filename))

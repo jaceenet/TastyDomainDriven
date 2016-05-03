@@ -9,7 +9,7 @@ namespace Events
 	using System;
 	using TastyDomainDriven;
 
-
+    [Serializable]
 	public sealed class MyNewEventEvent : TastyDomainDriven.IEvent
     {
 		private readonly string _id;
