@@ -9,7 +9,7 @@ namespace TastyDomainDriven.Tests
     {
         public string File = @"D:\temp\es";
 
-        [Fact]
+        [Fact(Skip = "local test")]        
         public async Task ReadFile()
         {
             var fs = new FileAppendOnlyStoreAsync(File);
@@ -17,7 +17,7 @@ namespace TastyDomainDriven.Tests
             Assert.NotEmpty(mainstream);
         }
 
-        [Fact]
+        [Fact(Skip = "local test")]
         public async Task ReadFileAsEvents()
         {
             
