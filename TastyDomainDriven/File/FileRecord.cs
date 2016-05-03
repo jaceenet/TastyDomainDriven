@@ -15,8 +15,9 @@ namespace TastyDomainDriven.File
 
         public byte[] Hash { get; private set; }
 
-        public FileRecord()
+        public FileRecord(long version = 0)
         {
+            this.Version = version;
         }
 
         public FileRecord(byte[] bytes, string name, long version)

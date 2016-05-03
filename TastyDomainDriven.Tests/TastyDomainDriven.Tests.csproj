@@ -91,6 +91,7 @@
     <Compile Include="AzureBlobAsyncAppenderFastTest.cs" />
     <Compile Include="BigEventData.cs" />
     <Compile Include="DslReadTest.cs" />
+    <Compile Include="FileAsyncReaderTest.cs" />
     <Compile Include="GuidId.cs" />
     <Compile Include="MemoryTableReaderWriterTests.cs" />
     <Compile Include="EventstoreSuite\MoreSolidTeset.cs" />
