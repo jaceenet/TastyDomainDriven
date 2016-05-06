@@ -106,6 +106,11 @@ namespace TastyDomainDriven.File
             var list = new List<FileRecord>();
             int version = 1;
 
+            if (!System.IO.File.Exists(filename))
+            {
+                return list;
+            }
+
             using (var fs = System.IO.File.Open(filename, FileMode.Open, FileAccess.Read))
             {
                 using (var reader = new BinaryReader(fs))
