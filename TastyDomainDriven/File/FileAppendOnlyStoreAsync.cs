@@ -20,6 +20,13 @@ namespace TastyDomainDriven.File
                 this.FileStream = s => Path.Combine(path, this.MasterStreamName+".dat");
             }
 
+            public Options(string path, string masterStream)
+            {
+                this.RootPath = path;
+                this.MasterStreamName = masterStream;
+                this.FileStream = s => Path.Combine(path, this.MasterStreamName + ".dat");
+            }
+
             public Func<string, string> FileStream { get; set; }
             
             public string RootPath { get; set; }
@@ -67,11 +74,22 @@ namespace TastyDomainDriven.File
             var filename = this.options.FileStream(streamName);
 
             var records = this.Read(filename);
+            if (System.IO.File.Exists(filename))
+            {
+                records = this.Read(filename);
+            }
+            else
+            {
+                records = new List<FileRecord>();
+            }
 
             var list = new List<DataWithVersion>();
             foreach (var record in records)
             {
-                list.Add(new DataWithVersion(record.Version, record.Bytes));
+                if (record.Name.Equals(streamName))
+                {
+                    list.Add(new DataWithVersion(record.Version, record.Bytes));
+                }
             }
 
             return Task.FromResult(list.Where(x => x.Version > afterVersion).Take(maxCount).ToArray());
