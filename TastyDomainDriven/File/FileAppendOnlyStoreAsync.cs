@@ -59,7 +59,13 @@ namespace TastyDomainDriven.File
             var events = await this.ReadRecords(afterVersion, maxCount);
             var versions = new Dictionary<string, int>();
 
-            using (var masterindexwriter = new StreamWriter(Path.Combine(namingPolicy.GetIndexPath("master")))) {
+            var rootindex = new FileInfo(Path.Combine(namingPolicy.GetIndexPath("master")));
+            using (var masterindexwriter = new StreamWriter(rootindex.FullName))
+            {
+                if (!rootindex.Directory.Exists)
+                {
+                    rootindex.Directory.Create();
+                }
 
                 foreach (var @event in events)
                 {
@@ -71,6 +77,8 @@ namespace TastyDomainDriven.File
                     {
                         filename.Directory.Create();
                     }
+
+
 
                     using (var fs = System.IO.File.OpenWrite(filename.FullName))
                     {
@@ -87,7 +95,7 @@ namespace TastyDomainDriven.File
                             streamindex.WriteLine(String.Join("\t", record.Name, record.Version, hash, filename));
                             masterindexwriter.WriteLine(indexfile, String.Join("\t", record.Name, record.Version, hash, filename));
                             streamindex.Flush();
-                        }    
+                        }
                     }
                 }
 
