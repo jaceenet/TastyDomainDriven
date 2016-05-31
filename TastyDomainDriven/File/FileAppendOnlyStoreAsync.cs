@@ -66,6 +66,11 @@ namespace TastyDomainDriven.File
                 var filename = new FileInfo(namingPolicy.GetStreamPath(@event.Name));
                 var record = new FileRecord(@event.Data, @event.Name, versions.ContainsKey(@event.Name) ? versions[@event.Name]++:versions[@event.Name]=1);
 
+                if (!filename.Directory.Exists)
+                {
+                    filename.Directory.Create();
+                }
+
                 using (var fs = System.IO.File.OpenWrite(filename.FullName))
                 {
                     record.WriteContentToStream(fs);
