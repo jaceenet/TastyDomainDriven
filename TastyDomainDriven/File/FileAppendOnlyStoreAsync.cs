@@ -66,15 +66,14 @@ namespace TastyDomainDriven.File
                 var filename = new FileInfo(namingPolicy.GetStreamPath(@event.Name));
                 var record = new FileRecord(@event.Data, @event.Name, versions.ContainsKey(@event.Name) ? versions[@event.Name]++:versions[@event.Name]=1);
 
-                if (writeIndexFile)
+                using (var fs = System.IO.File.OpenWrite(filename.FullName))
                 {
-                    using (var fs = System.IO.File.OpenWrite(filename.FullName))
-                    {
-                        record.WriteContentToStream(fs);
-                    }
+                    record.WriteContentToStream(fs);
+                }
 
+                if (writeIndexFile)
+                {                   
                     var indexfile = namingPolicy.GetIndexPath(@event.Name);
-
                     System.IO.File.AppendAllText(masterfile, String.Join("\t", record.Name, record.Version, record.Hash, filename));
                     System.IO.File.AppendAllText(indexfile, String.Join("\t", record.Name, record.Version, record.Hash, filename));                    
                 }                
