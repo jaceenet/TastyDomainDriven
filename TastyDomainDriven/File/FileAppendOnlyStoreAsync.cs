@@ -59,29 +59,39 @@ namespace TastyDomainDriven.File
             var events = await this.ReadRecords(afterVersion, maxCount);
             var versions = new Dictionary<string, int>();
 
-            var masterfile = Path.Combine(namingPolicy.GetIndexPath("master"));
+            using (var masterindexwriter = new StreamWriter(Path.Combine(namingPolicy.GetIndexPath("master")))) {
 
-            foreach (var @event in events)
-            {
-                var filename = new FileInfo(namingPolicy.GetStreamPath(@event.Name));
-                var record = new FileRecord(@event.Data, @event.Name, versions.ContainsKey(@event.Name) ? versions[@event.Name]++:versions[@event.Name]=1);
-
-                if (!filename.Directory.Exists)
+                foreach (var @event in events)
                 {
-                    filename.Directory.Create();
+                    var filename = new FileInfo(namingPolicy.GetStreamPath(@event.Name));
+                    var record = new FileRecord(@event.Data, @event.Name,
+                        versions.ContainsKey(@event.Name) ? versions[@event.Name]++ : versions[@event.Name] = 1);
+
+                    if (!filename.Directory.Exists)
+                    {
+                        filename.Directory.Create();
+                    }
+
+                    using (var fs = System.IO.File.OpenWrite(filename.FullName))
+                    {
+                        record.WriteContentToStream(fs);
+                    }
+
+                    if (writeIndexFile)
+                    {
+                        var indexfile = namingPolicy.GetIndexPath(@event.Name);
+                        var hash = string.Join("", record.Hash.Select(x => x.ToString("x2")));
+
+                        using (var streamindex = new StreamWriter(indexfile))
+                        {
+                            streamindex.WriteLine(String.Join("\t", record.Name, record.Version, hash, filename));
+                            masterindexwriter.WriteLine(indexfile, String.Join("\t", record.Name, record.Version, hash, filename));
+                            streamindex.Flush();
+                        }    
+                    }
                 }
 
-                using (var fs = System.IO.File.OpenWrite(filename.FullName))
-                {
-                    record.WriteContentToStream(fs);
-                }
-
-                if (writeIndexFile)
-                {                   
-                    var indexfile = namingPolicy.GetIndexPath(@event.Name);
-                    System.IO.File.AppendAllText(masterfile, String.Join("\t", record.Name, record.Version, record.Hash, filename));
-                    System.IO.File.AppendAllText(indexfile, String.Join("\t", record.Name, record.Version, record.Hash, filename));                    
-                }                
+                masterindexwriter.Flush();
             }
         }
 
