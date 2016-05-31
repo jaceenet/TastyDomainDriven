@@ -5,10 +5,35 @@ using System.Threading.Tasks;
 using Events;
 using TastyDomainDriven.AsyncImpl;
 using TastyDomainDriven.File;
+using TastyDomainDriven.Sample.Properties;
 using Xunit;
 
 namespace TastyDomainDriven.Tests
 {
+    public class FileAsyncWriterTest
+    {
+        public string File = @"D:\Temp\es_tests";
+
+        [Fact]
+        public async Task WriteStreamAndExtraxt()
+        {
+            var fs = new FileAppendOnlyStoreAsync(File);
+
+            var es = new EventStoreAsync(fs);
+            var id2 = GuidId.NewGuidId();
+            var id1 = GuidId.NewGuidId();
+
+            await es.AppendToStream(id2, 0, new[] {new BigEventData(), new BigEventData() , new BigEventData() });
+            await es.AppendToStream(id1, 0, new[] { new BigEventData(), new BigEventData(), new BigEventData() });
+            await es.AppendToStream(id2, 1, new[] { new BigEventData(), new BigEventData(), new BigEventData() });
+            await es.AppendToStream(id1, 1, new[] { new BigEventData(), new BigEventData(), new BigEventData() });
+
+            await fs.ExtractMasterStream(new DirectoryInfo(Path.Combine(File, "out")), new NameDashGuidNaming(), 0, int.MaxValue);
+
+            Assert.True(true);
+        }
+    }
+
     public class FileAsyncReaderTest
     {
         public string File = @"D:\temp\es";

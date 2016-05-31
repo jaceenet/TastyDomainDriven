@@ -96,13 +96,15 @@ namespace TastyDomainDriven.File
 
                     if (writeIndexFile)
                     {
-                        var indexfile = namingPolicy.GetIndexPath(@event.Name);
+                        var indexfile = Path.Combine(output.FullName, namingPolicy.GetIndexPath(@event.Name));
+
                         var hash = string.Join("", record.Hash.Select(x => x.ToString("x2")));
 
-                        using (var streamindex = new StreamWriter(indexfile))
+                        FileStream fileStream = System.IO.File.Exists(indexfile) ? System.IO.File.Open(indexfile, FileMode.Append, FileAccess.Write) : System.IO.File.Create(indexfile);
+                        using (var streamindex = new StreamWriter(fileStream))
                         {
-                            streamindex.WriteLine(String.Join("\t", record.Name, record.Version, hash, filename));
-                            masterindexwriter.WriteLine(indexfile, String.Join("\t", record.Name, record.Version, hash, streampath));
+                            streamindex.WriteLine(String.Join("\t", record.Name, record.Version, hash, streampath));
+                            masterindexwriter.WriteLine(String.Join("\t", record.Name, record.Version, hash, streampath));
                             streamindex.Flush();
                         }
                     }
@@ -114,22 +116,29 @@ namespace TastyDomainDriven.File
 
         public async Task Append(string streamName, byte[] data, long expectedStreamVersion = -1)
         {
-            var path = this.options.FileStream(options.MasterStreamName);
+            var path = new FileInfo(this.options.FileStream(options.MasterStreamName));
             var streampath = this.options.FileStream(streamName);
-            
-            using (Stream s = System.IO.File.Open(path, FileMode.Append, FileAccess.Write, FileShare.Write))
+
+            FileStream filestream;
+
+            if (!path.Directory.Exists)
+            {
+                path.Directory.Create();
+            }
+
+            if (!System.IO.File.Exists(path.FullName))
+            {
+                filestream = System.IO.File.Open(path.FullName, FileMode.CreateNew, FileAccess.Write, FileShare.Write);
+            }
+            else
+            {
+                filestream = System.IO.File.Open(path.FullName, FileMode.Append, FileAccess.Write, FileShare.Write);
+            }
+
+            using (Stream s = filestream)
             {
                 var record = new FileRecord(data, streamName, expectedStreamVersion + 1);
                 await record.WriteContentToStreamAsync(s);
-            }
-
-            if (!path.Equals(streampath))
-            {
-                using (Stream s = System.IO.File.Open(streampath, FileMode.Append, FileAccess.Write, FileShare.Write))
-                {
-                    var record = new FileRecord(data, streamName, expectedStreamVersion + 1);
-                    await record.WriteContentToStreamAsync(s);
-                }
             }
         }
 
