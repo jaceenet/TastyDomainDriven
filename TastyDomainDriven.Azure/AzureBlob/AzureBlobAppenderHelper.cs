@@ -144,7 +144,7 @@ namespace TastyDomainDriven.Azure.AzureBlob
                     return records;
                 }
 
-                await blob.DownloadToStreamAsync(s);
+                await blob.DownloadRangeToStreamAsync(s, 0, blob.Properties.Length);
 
                 s.Position = 0;
                 var reader = new BinaryReader(s);
