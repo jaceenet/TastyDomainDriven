@@ -54,32 +54,41 @@ namespace TastyDomainDriven.File
         /// Extract the masterstream to mimic the folder structure the AzureAsyncAppender
         /// </summary>
         /// <returns></returns>
-        public async Task ExtractMasterStream(IAppenderNamingPolicy namingPolicy, long afterVersion, int maxCount, bool writeIndexFile = true)
+        public async Task ExtractMasterStream(DirectoryInfo output, IAppenderNamingPolicy namingPolicy, long afterVersion, int maxCount, bool writeIndexFile = true)
         {
             var events = await this.ReadRecords(afterVersion, maxCount);
             var versions = new Dictionary<string, int>();
+            
+            var rootindex = new FileInfo(Path.Combine(output.FullName, namingPolicy.GetIndexPath("master")));
 
-            var rootindex = new FileInfo(Path.Combine(namingPolicy.GetIndexPath("master")));
-            using (var masterindexwriter = new StreamWriter(rootindex.FullName))
+            if (!output.Exists)
             {
-                if (!rootindex.Directory.Exists)
-                {
-                    rootindex.Directory.Create();
-                }
+                output.Create();
+            }
 
+            using (var masterindexwriter = new StreamWriter(System.IO.File.OpenWrite(rootindex.FullName)))
+            {   
                 foreach (var @event in events)
                 {
-                    var filename = new FileInfo(namingPolicy.GetStreamPath(@event.Name));
-                    var record = new FileRecord(@event.Data, @event.Name,
-                        versions.ContainsKey(@event.Name) ? versions[@event.Name]++ : versions[@event.Name] = 1);
+                    var streampath = namingPolicy.GetStreamPath(@event.Name);
+                    var filename = new FileInfo(Path.Combine(output.FullName, streampath));
+
+                    if (!versions.ContainsKey(@event.Name))
+                    {
+                        versions[@event.Name] = 1;
+                    }
+                    else
+                    {
+                        versions[@event.Name]++;
+                    }
+
+                    var record = new FileRecord(@event.Data, @event.Name, versions[@event.Name]);
 
                     if (!filename.Directory.Exists)
                     {
                         filename.Directory.Create();
                     }
-
-
-
+                    
                     using (var fs = System.IO.File.OpenWrite(filename.FullName))
                     {
                         record.WriteContentToStream(fs);
@@ -93,7 +102,7 @@ namespace TastyDomainDriven.File
                         using (var streamindex = new StreamWriter(indexfile))
                         {
                             streamindex.WriteLine(String.Join("\t", record.Name, record.Version, hash, filename));
-                            masterindexwriter.WriteLine(indexfile, String.Join("\t", record.Name, record.Version, hash, filename));
+                            masterindexwriter.WriteLine(indexfile, String.Join("\t", record.Name, record.Version, hash, streampath));
                             streamindex.Flush();
                         }
                     }
