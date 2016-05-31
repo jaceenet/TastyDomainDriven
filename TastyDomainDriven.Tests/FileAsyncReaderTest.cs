@@ -12,7 +12,7 @@ namespace TastyDomainDriven.Tests
 {
     public class FileAsyncWriterTest
     {
-        public string File = @"D:\Temp\es_tests";
+        public string File = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("D"));
 
         [Fact]
         public async Task WriteStreamAndExtraxt()
@@ -30,13 +30,14 @@ namespace TastyDomainDriven.Tests
 
             await fs.ExtractMasterStream(new DirectoryInfo(Path.Combine(File, "out")), new NameDashGuidNaming(), 0, int.MaxValue);
 
-            Assert.True(true);
+            
+            Assert.True(true, "Tested in: " + File);
         }
     }
 
     public class FileAsyncReaderTest
     {
-        public string File = @"D:\temp\es";
+        public string File = Path.GetTempPath();
 
         [Fact(Skip = "local test")]        
         public async Task ReadFile()
