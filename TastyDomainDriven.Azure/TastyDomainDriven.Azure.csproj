@@ -86,7 +86,6 @@
     <Compile Include="AzureBlob\FolderIndexVersion.cs" />
     <Compile Include="AzureBlob\IAzureAppenderBlobNamingPolicy.cs" />
     <Compile Include="AzureBlob\MasterIndex.cs" />
-    <Compile Include="AzureBlob\NameDashGuidNaming.cs" />
     <Compile Include="AzureTableWriter.cs" />
     <Compile Include="BlobAppendOnlyStore.cs" />
     <Compile Include="AppendWriterDelegate.cs" />

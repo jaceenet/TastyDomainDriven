@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TastyDomainDriven.AsyncImpl;
+using TastyDomainDriven.Azure.AzureBlob;
 
 namespace TastyDomainDriven.File
 {
@@ -46,6 +48,37 @@ namespace TastyDomainDriven.File
         private Options GetDefaultOptions(string path)
         {
             return new Options(path);
+        }
+
+        /// <summary>
+        /// Extract the masterstream to mimic the folder structure the AzureAsyncAppender
+        /// </summary>
+        /// <returns></returns>
+        public async Task ExtractMasterStream(IAppenderNamingPolicy namingPolicy, long afterVersion, int maxCount, bool writeIndexFile = true)
+        {
+            var events = await this.ReadRecords(afterVersion, maxCount);
+            var versions = new Dictionary<string, int>();
+
+            var masterfile = Path.Combine(namingPolicy.GetIndexPath("master"));
+
+            foreach (var @event in events)
+            {
+                var filename = new FileInfo(namingPolicy.GetStreamPath(@event.Name));
+                var record = new FileRecord(@event.Data, @event.Name, versions.ContainsKey(@event.Name) ? versions[@event.Name]++:versions[@event.Name]=1);
+
+                if (writeIndexFile)
+                {
+                    using (var fs = System.IO.File.OpenWrite(filename.FullName))
+                    {
+                        record.WriteContentToStream(fs);
+                    }
+
+                    var indexfile = namingPolicy.GetIndexPath(@event.Name);
+
+                    System.IO.File.AppendAllText(masterfile, String.Join("\t", record.Name, record.Version, record.Hash, filename));
+                    System.IO.File.AppendAllText(indexfile, String.Join("\t", record.Name, record.Version, record.Hash, filename));                    
+                }                
+            }
         }
 
         public async Task Append(string streamName, byte[] data, long expectedStreamVersion = -1)
@@ -129,7 +162,7 @@ namespace TastyDomainDriven.File
                 return list;
             }
 
-            using (var fs = System.IO.File.Open(filename, FileMode.Open, FileAccess.Read))
+            using (var fs = System.IO.File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 using (var reader = new BinaryReader(fs))
                 {
@@ -150,6 +183,37 @@ namespace TastyDomainDriven.File
             }
 
             return list;
+        }
+
+        bool _disposed;
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~FileAppendOnlyStoreAsync()
+        {
+            Dispose(false);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed)
+                return;
+
+            if (disposing)
+            {
+                // free other managed objects that implement
+                // IDisposable only
+
+            }
+
+            // release any unmanaged objects
+            // set the object references to null
+
+            _disposed = true;
         }
     }
 
