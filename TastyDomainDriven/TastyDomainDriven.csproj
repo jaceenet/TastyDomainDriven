@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TastyDomainDriven</RootNamespace>
     <AssemblyName>TastyDomainDriven</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -50,6 +51,7 @@
     <Compile Include="AggregateState.cs" />
     <Compile Include="AppendOnlyStoreConcurrencyException.cs" />
     <Compile Include="AppendOnlyTimeoutException.cs" />
+    <Compile Include="AsyncImpl\AsyncAppendOnlyExtension.cs" />
     <Compile Include="AsyncImpl\AsyncCommandDispatcher.cs" />
     <Compile Include="AsyncImpl\AsyncCommandDispatcherBase.cs" />
     <Compile Include="AsyncImpl\AsyncFrom.cs" />
@@ -76,7 +78,9 @@
     <Compile Include="EventStore\EventStore.cs" />
     <Compile Include="EventStore\EventStoreForwarder.cs" />
     <Compile Include="EventStream.cs" />
+    <Compile Include="File\FileAppendOnlyStoreAsync.cs" />
     <Compile Include="File\FileRecord.cs" />
+    <Compile Include="File\IAzureAppenderBlobNamingPolicy.cs" />
     <Compile Include="IConsumesAsync.cs" />
     <Compile Include="IEventForNamedSource.cs" />
     <Compile Include="IEventPublisher.cs" />
@@ -87,6 +91,8 @@
     <Compile Include="ITableReaderWriter.cs" />
     <Compile Include="ITableWriter.cs" />
     <Compile Include="Memory\MemoryAppendStoreAsync.cs" />
+    <Compile Include="MsSql\SqlAppendOnlyStoreAsync.cs" />
+    <Compile Include="NameDashGuidNaming.cs" />
     <Compile Include="Projections\CachedTableReaderWriter.cs" />
     <Compile Include="Projections\MemoryHashTableWriter.cs" />
     <Compile Include="Providers\BaseViewProvider.cs" />

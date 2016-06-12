@@ -1,0 +1,5 @@
+﻿//Types defined:
+#UserId;UserId.Empty;MyNamespace;{0}.Write({1});UserId.Parse({0}.ReadString())
+
+//My events:
+MyNewEvent;199;1=Id:string;2=EventId:Guid;3=Timestamp:DateTime

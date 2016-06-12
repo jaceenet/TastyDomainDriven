@@ -1,12 +1,9 @@
 using System;
 using System.Threading.Tasks;
 using TastyDomainDriven.AsyncImpl;
-using TastyDomainDriven.Azure.AzureBlob;
 using TastyDomainDriven.Memory;
-using TastyDomainDriven.Projections;
 using TastyDomainDriven.Sample.Commands;
 using TastyDomainDriven.Sample.CommandServices;
-using TastyDomainDriven.Sample.Projections;
 using TastyDomainDriven.Sample.Properties;
 using Xunit;
 

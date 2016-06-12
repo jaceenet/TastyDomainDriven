@@ -9,10 +9,11 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TastyDomainDriven.Azure</RootNamespace>
     <AssemblyName>TastyDomainDriven.Azure</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -85,7 +86,6 @@
     <Compile Include="AzureBlob\FolderIndexVersion.cs" />
     <Compile Include="AzureBlob\IAzureAppenderBlobNamingPolicy.cs" />
     <Compile Include="AzureBlob\MasterIndex.cs" />
-    <Compile Include="AzureBlob\NameDashGuidNaming.cs" />
     <Compile Include="AzureTableWriter.cs" />
     <Compile Include="BlobAppendOnlyStore.cs" />
     <Compile Include="AppendWriterDelegate.cs" />

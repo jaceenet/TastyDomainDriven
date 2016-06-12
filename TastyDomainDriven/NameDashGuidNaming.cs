@@ -1,8 +1,9 @@
 ﻿using System;
+using TastyDomainDriven.Azure.AzureBlob;
 
-namespace TastyDomainDriven.Azure.AzureBlob
+namespace TastyDomainDriven
 {
-    public class NameDashGuidNaming : IAzureAppenderBlobNamingPolicy
+    public class NameDashGuidNaming : IAppenderNamingPolicy
     {
         private string prefix;
 

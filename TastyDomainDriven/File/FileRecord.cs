@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace TastyDomainDriven.File
 {
@@ -14,8 +15,9 @@ namespace TastyDomainDriven.File
 
         public byte[] Hash { get; private set; }
 
-        public FileRecord()
+        public FileRecord(long version = 0)
         {
+            this.Version = version;
         }
 
         public FileRecord(byte[] bytes, string name, long version)
@@ -45,7 +47,33 @@ namespace TastyDomainDriven.File
                     stream.Write(bytes, 0, bytes.Length);
                 }
                 this.Hash = sha1.Hash;
+
                 stream.Write(sha1.Hash, 0, sha1.Hash.Length);
+            }
+        }
+
+        public async Task WriteContentToStreamAsync(Stream stream)
+        {
+            using (var sha1 = new SHA1Managed())
+            {
+                // version, ksz, vsz, key, value, sha1
+                using (var memory = new MemoryStream())
+                {
+                    using (var crypto = new CryptoStream(memory, sha1, CryptoStreamMode.Write))
+                    using (var binary = new BinaryWriter(crypto, Encoding.UTF8))
+                    {
+                        binary.Write(this.Version);
+                        binary.Write(this.Name);
+                        binary.Write(this.Bytes.Length);
+                        binary.Write(this.Bytes);
+                    }
+                    var bytes = memory.ToArray();
+
+                    stream.Write(bytes, 0, bytes.Length);
+                }
+                this.Hash = sha1.Hash;
+
+                await stream.WriteAsync(sha1.Hash, 0, sha1.Hash.Length);
             }
         }
 

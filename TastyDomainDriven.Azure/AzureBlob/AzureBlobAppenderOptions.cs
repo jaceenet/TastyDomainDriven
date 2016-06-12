@@ -22,7 +22,7 @@ namespace TastyDomainDriven.Azure.AzureBlob
 
         public TimeSpan[] RetryPolicy { get; set; }
 
-        public IAzureAppenderBlobNamingPolicy NamingPolicy { get; set; }
+        public IAppenderNamingPolicy NamingPolicy { get; set; }
 
         public bool DisableMasterIndex { get; set; }
     }
