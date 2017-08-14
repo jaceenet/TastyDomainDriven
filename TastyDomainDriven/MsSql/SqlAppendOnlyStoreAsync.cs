@@ -1,6 +1,7 @@
 ﻿ 
 
 using System;
+using System.Data;
 
 namespace TastyDomainDriven.MsSql
 {
@@ -29,6 +30,11 @@ namespace TastyDomainDriven.MsSql
 
         private async Task OpenConnection(int retry = 0, int max = 3)
         {
+            if (this.connection.State == ConnectionState.Open)
+            {
+                return;
+            }
+
             try
             {
                 await this.connection.OpenAsync();
