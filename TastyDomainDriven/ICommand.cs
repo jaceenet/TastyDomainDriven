@@ -4,6 +4,6 @@
 
     public interface ICommand
     {
-        DateTime Timestamp { get; set; }
+        DateTime Timestamp { get; }
     }
 }
