@@ -22,7 +22,8 @@ namespace TastyDomainDriven.AggregateService
         }
         public ICommandExecutor GetExecutor(ICommand command)
         {
-            return executors.TryGetValue(command.GetType(), out var finder) ? finder.Invoke(command) : null;
+            Func<ICommand, ICommandExecutor> finder;
+            return executors.TryGetValue(command.GetType(), out finder) ? finder.Invoke(command) : null;
         }
 
         private readonly IEventStoreAsync eventStore;
