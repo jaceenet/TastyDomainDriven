@@ -5,7 +5,7 @@ using TastyDomainDriven.AsyncImpl;
 
 namespace TastyDomainDriven.AggregateService
 {
-    public abstract class AggregateHandler<TAggregateRoot> : 
+    public abstract class AggregateHandler<TAggregateRoot> :
         ICommandHandler
         where TAggregateRoot : IAggregate, new()
     {
@@ -22,7 +22,8 @@ namespace TastyDomainDriven.AggregateService
         }
         public ICommandExecutor GetExecutor(ICommand command)
         {
-            return executors[command.GetType()](command);
+            Func<ICommand, ICommandExecutor> finder;
+            return executors.TryGetValue(command.GetType(), out finder) ? finder.Invoke(command) : null;
         }
 
         private readonly IEventStoreAsync eventStore;
@@ -33,7 +34,7 @@ namespace TastyDomainDriven.AggregateService
         }
 
         /// <summary>
-        /// Create a aggreagate from another existing root. Only changes to the new aggregate is saved. 
+        /// Create a aggreagate from another existing root. Only changes to the new aggregate is saved.
         /// </summary>
         /// <typeparam name="TIdent">id type of created aggregate</typeparam>
         /// <typeparam name="TResult">Aggregate to save changes on</typeparam>
