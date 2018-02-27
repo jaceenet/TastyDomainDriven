@@ -36,7 +36,7 @@ namespace TastyDomainDriven.AsyncImpl
                 // load server events
                 var server = await this.LoadEventStream(id, 0, int.MaxValue);
                 // throw a real problem
-                throw OptimisticConcurrencyException.Create(server.Version, e.ExpectedStreamVersion, id, server.Events);
+                throw OptimisticConcurrencyException.Create(server.Version, e.ExpectedStreamVersion, id, server.Events, events.ToList());
             }
 
             foreach (var @event in events)

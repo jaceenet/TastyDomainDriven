@@ -1,4 +1,7 @@
-﻿
+﻿ 
+
+using System;
+using System.Data;
 
 namespace TastyDomainDriven.MsSql
 {
@@ -8,23 +11,53 @@ namespace TastyDomainDriven.MsSql
 
     using AsyncImpl;
 
-    public sealed class SqlAppendOnlyStoreAsync : IAppendOnlyAsync
+    public sealed class SqlAppendOnlyStoreAsync : IAppendOnlyAsync, IDisposable
     {
-        readonly string connectionString;
+        readonly SqlConnection connection;
 
         private readonly string tableName;
 
         public SqlAppendOnlyStoreAsync(string connectionString, string tableName = "events")
         {
-            this.connectionString = connectionString;
+            this.connection = new SqlConnection(connectionString);
+        }
+
+        public SqlAppendOnlyStoreAsync(SqlConnection connection, string tableName = "events")
+        {
+            this.connection = connection;
             this.tableName = "[" + tableName + "]";
+        }
+
+        private async Task OpenConnection(int retry = 0, int max = 3)
+        {
+            if (this.connection.State == ConnectionState.Open)
+            {
+                return;
+            }
+
+            try
+            {
+                await this.connection.OpenAsync();
+            }
+            catch (SqlException e)
+            {
+                if (e.Number == -2 && retry < max) //connection failed
+                {
+                    await this.OpenConnection(retry + 1, max);
+                    return;
+                }
+                
+                throw;
+            }
+            
         }
 
         public async Task Initialize()
         {
-            using (var conn = new SqlConnection(this.connectionString))
+            await this.OpenConnection();
+            //using (var conn = new SqlConnection(this.connection))
             {
-                await conn.OpenAsync();
+                //await conn.OpenAsync();
 
                 string txt = @"IF NOT EXISTS 
                         (SELECT * FROM sys.objects 
@@ -38,7 +71,7 @@ namespace TastyDomainDriven.MsSql
 	                        [Data] [varbinary](max) NOT NULL
                         ) ON [PRIMARY]
 ";
-                using (var cmd = new SqlCommand(txt, conn))
+                using (var cmd = new SqlCommand(txt, this.connection))
                 {
                     await cmd.ExecuteNonQueryAsync();
                 }
@@ -47,11 +80,12 @@ namespace TastyDomainDriven.MsSql
 
         public async Task Append(string name, byte[] data, long expectedVersion)
         {
-            using (var conn = new SqlConnection(this.connectionString))
+            await this.OpenConnection();
+            //using (var conn = new SqlConnection(this.connection))
             {
-                await conn.OpenAsync();
+                //await conn.OpenAsync();
 
-                using (var tx = conn.BeginTransaction())
+                using (var tx = this.connection.BeginTransaction())
                 {
                     string sql =
                         @"SELECT ISNULL(MAX(Version),0) 
@@ -59,7 +93,7 @@ namespace TastyDomainDriven.MsSql
                             WHERE Name=@name";
 
                     int version;
-                    using (var cmd = new SqlCommand(sql, conn, tx))
+                    using (var cmd = new SqlCommand(sql, this.connection, tx))
                     {
                         cmd.Parameters.AddWithValue("@name", name);
                         version = (int)cmd.ExecuteScalar();
@@ -74,7 +108,7 @@ namespace TastyDomainDriven.MsSql
                     string txt = @"INSERT INTO " + this.tableName + @" (Name,Version,Data) 
                                 VALUES(@name,@version,@data)";
 
-                    using (var cmd = new SqlCommand(txt, conn, tx))
+                    using (var cmd = new SqlCommand(txt, this.connection, tx))
                     {
                         cmd.Parameters.AddWithValue("@name", name);
                         cmd.Parameters.AddWithValue("@version", version + 1);
@@ -89,15 +123,16 @@ namespace TastyDomainDriven.MsSql
 
         public async Task<DataWithVersion[]> ReadRecords(string name, long afterVersion, int maxCount)
         {
-            using (var conn = new SqlConnection(this.connectionString))
+            await this.OpenConnection();
+            //using (var conn = new SqlConnection(this.connection))
             {
-                await conn.OpenAsync();
+              //  await conn.OpenAsync();
 
                 string sql =
                     string.Format(@"SELECT TOP (@take) Data, Version FROM {0}
                         WHERE Name = @p1 AND Version > @skip
                         ORDER BY Version", tableName);
-                using (var cmd = new SqlCommand(sql, conn))
+                using (var cmd = new SqlCommand(sql, this.connection))
                 {
                     cmd.Parameters.AddWithValue("@p1", name);
                     cmd.Parameters.AddWithValue("@take", maxCount);
@@ -122,14 +157,15 @@ namespace TastyDomainDriven.MsSql
 
         public async Task<DataWithName[]> ReadRecords(long afterVersion, int maxCount)
         {
-            using (var conn = new SqlConnection(this.connectionString))
+            await this.OpenConnection();
+            //using (var conn = new SqlConnection(this.connection))
             {
-                await conn.OpenAsync();
+//                await conn.OpenAsync();
 
                 string sql = string.Format(@"SELECT TOP (@take) Data, Name FROM {0}
                         WHERE Id > @skip
                         ORDER BY Id", tableName);
-                using (var cmd = new SqlCommand(sql, conn))
+                using (var cmd = new SqlCommand(sql, this.connection))
                 {
 
                     cmd.Parameters.AddWithValue("@take", maxCount);
@@ -150,6 +186,11 @@ namespace TastyDomainDriven.MsSql
                     return list.ToArray();
                 }
             }
+        }
+
+        public void Dispose()
+        {
+            connection?.Dispose();
         }
     }
 }
