@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage.Blob;
 
 namespace TastyDomainDriven.Azure
@@ -24,7 +25,7 @@ namespace TastyDomainDriven.Azure
             //var blobReference = this.container.GetBlobReferenceFromServer("lock");
 
             Logger.Debug("Requesting lease....");
-            this.lease = this.container.AcquireLease(TimeSpan.FromSeconds(15), this.instanceId);
+            this.lease = this.container.AcquireLeaseAsync(TimeSpan.FromSeconds(15), this.instanceId).Result;
 
             if (string.IsNullOrEmpty(lease))
             {
@@ -38,13 +39,31 @@ namespace TastyDomainDriven.Azure
             }
         }
 
-        public void Dispose()
+        public async Task AquireLeaseAsync()
         {
-            
+            //var blobReference = this.container.GetBlobReferenceFromServer("lock");
+
+            Logger.Debug("Requesting lease....");
+            this.lease = await this.container.AcquireLeaseAsync(TimeSpan.FromSeconds(15), this.instanceId);
+
+            if (string.IsNullOrEmpty(lease))
+            {
+                this.Exception = new Exception("Could not aquire lease.");
+                Logger.Info("Got exception on lease: ", this.Exception);
+            }
+            else
+            {
+                this.Exception = null;
+                Logger.DebugFormat("Got lease.... {0}", this.lease);
+            }
+        }
+
+        public async void Dispose()
+        {
             if (this.container != null && !string.IsNullOrEmpty(this.lease))
             {
                 Logger.DebugFormat("Breaking lease {0}", this.lease);
-                this.container.BreakLease(TimeSpan.FromSeconds(20));
+                await this.container.BreakLeaseAsync(TimeSpan.FromSeconds(20));
             }
         }
     }
