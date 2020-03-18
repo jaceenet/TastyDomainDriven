@@ -148,7 +148,8 @@ namespace TastyDomainDriven.Azure
             {
                 files = await _container.ListBlobsSegmentedAsync(token);
                 items.AddRange(files.Results);
-            } while (files.ContinuationToken != null && !string.IsNullOrWhiteSpace(files.ContinuationToken.NextMarker));
+                token = files.ContinuationToken;
+            } while (token != null);
 
             // cleanup old pending files
             // load indexes
