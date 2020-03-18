@@ -8,6 +8,7 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 
@@ -138,20 +139,29 @@ namespace TastyDomainDriven.Azure
             }
         }
 
-        IEnumerable<Record> EnumerateHistory()
+        async IAsyncEnumerable<Record> EnumerateHistory()
         {
+            BlobContinuationToken token = null;
+            List<IListBlobItem> items = new List<IListBlobItem>();
+            BlobResultSegment files;
+            do
+            {
+                files = await _container.ListBlobsSegmentedAsync(token);
+                items.AddRange(files.Results);
+                token = files.ContinuationToken;
+            } while (token != null);
+
             // cleanup old pending files
             // load indexes
             // build and save missing indexes
-            var datFiles = this._container
-                .ListBlobs()
+            var datFiles = items
                 .OrderBy(s => s.Uri.ToString())
                 .OfType<CloudPageBlob>();
 
             foreach (var fileInfo in datFiles)
             {
                 var memStream = new MemoryStream();
-                fileInfo.DownloadToStream(memStream);
+                await fileInfo.DownloadToStreamAsync(memStream);
                 memStream.Position = 0;
 
                 using (var stream = memStream)
@@ -205,13 +215,13 @@ namespace TastyDomainDriven.Azure
             }
         }
 
-        void LoadCaches()
+        async Task LoadCaches()
         {
             try
             {
                 this._cacheLock.EnterWriteLock();
 
-                foreach (var record in this.EnumerateHistory())
+                await foreach (var record in this.EnumerateHistory())
                 {
                     this.AddToCaches(record.Name, record.Bytes, record.Version);
                 }
@@ -279,7 +289,7 @@ namespace TastyDomainDriven.Azure
             this._currentWriter = null;
         }
 
-        void EnsureWriterExists(long version)
+        async Task EnsureWriterExists(long version)
         {
             if (this._lock.Exception != null)
                 throw new InvalidOperationException("Can not renew lease", this._lock.Exception);
@@ -289,19 +299,21 @@ namespace TastyDomainDriven.Azure
 
             var fileName = string.Format("{0:00000000}-{1:yyyy-MM-dd-HHmm}.dat", version, DateTime.UtcNow);
             var blob = this._container.GetPageBlobReference(fileName);
-            blob.Create(1024 * 512);
+            await blob.CreateAsync(1024 * 512);
 
-            this._currentWriter = new AppendOnlyStream(512, (i, bytes) => blob.WritePages(bytes, i), 1024 * 512);
+            async void Writer(int i, Stream bytes) => await blob.WritePagesAsync(bytes, i, null);
+
+            this._currentWriter = new AppendOnlyStream(512, Writer, 1024 * 512);
         }
 
-        static void CreateIfNotExists(CloudBlobContainer container, TimeSpan timeout)
+        static async Task CreateIfNotExists(CloudBlobContainer container, TimeSpan timeout)
         {
             var sw = Stopwatch.StartNew();
             while (sw.Elapsed < timeout)
             {
                 try
                 {
-                    container.CreateIfNotExists();
+                    await container.CreateIfNotExistsAsync();
                     return;
                 }
                 catch (StorageException e)
