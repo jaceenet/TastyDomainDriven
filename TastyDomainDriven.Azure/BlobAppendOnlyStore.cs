@@ -141,7 +141,7 @@ namespace TastyDomainDriven.Azure
 
         async IAsyncEnumerable<Record> EnumerateHistory()
         {
-            BlobContinuationToken token = new BlobContinuationToken();
+            BlobContinuationToken token = null;
             List<IListBlobItem> items = new List<IListBlobItem>();
             BlobResultSegment files;
             do
