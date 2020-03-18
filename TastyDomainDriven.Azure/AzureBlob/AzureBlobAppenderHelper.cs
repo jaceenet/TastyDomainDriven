@@ -114,7 +114,7 @@ namespace TastyDomainDriven.Azure.AzureBlob
 
         internal async Task Prerequisites()
         {
-            if (!this.GetMasterCache().Exists())
+            if (!await this.GetMasterCache().ExistsAsync())
             {
                 await this.GetMasterCache().CreateOrReplaceAsync();
             }
