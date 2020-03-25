@@ -97,6 +97,7 @@
     <Compile Include="EventstoreSuite\MoreSolidTeset.cs" />
     <Compile Include="AzureBlobAsyncAppenderTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StreamAppenderTests.cs" />
     <Compile Include="StringId.cs" />
   </ItemGroup>
   <ItemGroup>

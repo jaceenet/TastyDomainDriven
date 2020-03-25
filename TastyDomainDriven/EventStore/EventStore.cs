@@ -111,7 +111,7 @@
                 // load server events
                 var server = this.LoadEventStream(id, 0, int.MaxValue);
                 // throw a real problem
-                throw OptimisticConcurrencyException.Create(server.Version, e.ExpectedStreamVersion, id, server.Events);
+                throw OptimisticConcurrencyException.Create(server.Version, e.ExpectedStreamVersion, id, server.Events, events.ToList());
             }
 
             // technically there should be a parallel process that queries new changes 
