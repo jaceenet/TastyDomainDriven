@@ -20,6 +20,7 @@ namespace TastyDomainDriven.MsSql
         public SqlAppendOnlyStoreAsync(string connectionString, string tableName = "events")
         {
             this.connection = new SqlConnection(connectionString);
+            this.tableName = tableName;
         }
 
         public SqlAppendOnlyStoreAsync(SqlConnection connection, string tableName = "events")
