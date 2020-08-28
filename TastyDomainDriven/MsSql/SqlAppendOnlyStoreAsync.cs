@@ -2,6 +2,7 @@
 
 using System;
 using System.Data;
+using System.Text;
 
 namespace TastyDomainDriven.MsSql
 {
@@ -20,13 +21,29 @@ namespace TastyDomainDriven.MsSql
         public SqlAppendOnlyStoreAsync(string connectionString, string tableName = "events")
         {
             this.connection = new SqlConnection(connectionString);
-            this.tableName = tableName;
+            this.tableName = SetTableName(tableName);
         }
 
         public SqlAppendOnlyStoreAsync(SqlConnection connection, string tableName = "events")
         {
             this.connection = connection;
-            this.tableName = "[" + tableName + "]";
+            this.tableName = SetTableName(tableName);
+        }
+
+        private string SetTableName(string name)
+        {
+            StringBuilder sb = new StringBuilder(name, name.Length + 2);
+            if (!name.StartsWith("[", StringComparison.Ordinal))
+            {
+                sb.Insert(0, "[");
+            }
+
+            if (!name.EndsWith("]", StringComparison.Ordinal))
+            {
+                sb.Append("]");
+            }
+
+            return sb.ToString();
         }
 
         private async Task OpenConnection(int retry = 0, int max = 3)
