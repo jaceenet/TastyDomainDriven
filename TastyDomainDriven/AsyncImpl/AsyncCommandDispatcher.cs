@@ -1,21 +1,24 @@
 ﻿using System;
 using System.Threading.Tasks;
 using TastyDomainDriven.AggregateService;
+using TastyDomainDriven.PerformanceMeasurements;
 
 namespace TastyDomainDriven.AsyncImpl
 {
     public abstract class AsyncCommandDispatcher<TAggregateRoot> : IAsyncCommandDispatcher where TAggregateRoot : IAggregate, new()
     {
         private readonly IEventStoreAsync eventStore;
+        private IPerformanceLogger _performanceLogger;
 
-        protected AsyncCommandDispatcher(IEventStoreAsync eventStore)
+        protected AsyncCommandDispatcher(IEventStoreAsync eventStore, IPerformanceLogger performanceLogger = null)
         {
+            _performanceLogger = performanceLogger;
             this.eventStore = eventStore;
         }
 
         protected async Task Update<TIdent>(TIdent id, Action<TAggregateRoot> execute) where TIdent : IIdentity
         {
-            await new UpdateAggregateAsync<TAggregateRoot>().Execute(this.eventStore, id, execute);
+            await new UpdateAggregateAsync<TAggregateRoot>(_performanceLogger).Execute(this.eventStore, id, execute);
         }
 
         /// <summary>
@@ -33,7 +36,7 @@ namespace TastyDomainDriven.AsyncImpl
             where TResult : IAggregate, new()
         {
             // Load event stream from the store
-            await new CreateAggregateByUpdateAsync<TAggregateRoot>().Execute(this.eventStore, id, execute, createId);
+            await new CreateAggregateByUpdateAsync<TAggregateRoot>(_performanceLogger).Execute(this.eventStore, id, execute, createId);
         }
 
         public abstract Task Dispatch(ICommand command);

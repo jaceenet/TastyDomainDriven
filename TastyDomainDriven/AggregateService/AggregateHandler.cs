@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TastyDomainDriven.AsyncImpl;
+using TastyDomainDriven.PerformanceMeasurements;
 
 namespace TastyDomainDriven.AggregateService
 {
@@ -11,8 +12,9 @@ namespace TastyDomainDriven.AggregateService
     {
         private readonly Dictionary<Type, Func<ICommand, ICommandExecutor>> executors = new Dictionary<Type, Func<ICommand, ICommandExecutor>>();
 
-        protected AggregateHandler(IEventStoreAsync eventStore)
+        protected AggregateHandler(IEventStoreAsync eventStore, IPerformanceLogger performanceLogger = null)
         {
+            _performanceLogger = performanceLogger;
             this.eventStore = eventStore;
         }
 
@@ -20,6 +22,7 @@ namespace TastyDomainDriven.AggregateService
         {
             executors[typeof(T)] = cmd => new Executor<T>(cmd, action);
         }
+
         public ICommandExecutor GetExecutor(ICommand command)
         {
             Func<ICommand, ICommandExecutor> finder;
@@ -27,10 +30,11 @@ namespace TastyDomainDriven.AggregateService
         }
 
         private readonly IEventStoreAsync eventStore;
+        private IPerformanceLogger _performanceLogger;
 
-        protected async Task Update<TIdent>(TIdent id, Action<TAggregateRoot> execute) where TIdent : IIdentity
+        protected virtual async Task Update<TIdent>(TIdent id, Action<TAggregateRoot> execute) where TIdent : IIdentity
         {
-            await new UpdateAggregateAsync<TAggregateRoot>().Execute(this.eventStore, id, execute);
+            await new UpdateAggregateAsync<TAggregateRoot>(_performanceLogger).Execute(this.eventStore, id, execute);
         }
 
         /// <summary>
@@ -42,13 +46,13 @@ namespace TastyDomainDriven.AggregateService
         /// <param name="id">existing aggregate id</param>
         /// <param name="execute">invoke logic</param>
         /// <param name="createId">id to save changes to</param>
-        protected async Task Create<TIdent, TResult, TCreateFromId>(TCreateFromId id, Func<TResult, TAggregateRoot> execute, TIdent createId)
+        protected virtual async Task Create<TIdent, TResult, TCreateFromId>(TCreateFromId id, Func<TResult, TAggregateRoot> execute, TIdent createId)
             where TIdent : IIdentity
             where TCreateFromId : IIdentity
             where TResult : IAggregate, new()
         {
             // Load event stream from the store
-            await new CreateAggregateByUpdateAsync<TAggregateRoot>().Execute(this.eventStore, id, execute, createId);
+            await new CreateAggregateByUpdateAsync<TAggregateRoot>(_performanceLogger).Execute(this.eventStore, id, execute, createId);
         }
     }
 }

@@ -23,16 +23,19 @@ namespace TastyDomainDriven.Sample
             IDtoConverter<SayingDto, Saying> converter = new MyDtoConverters();
             Stream mem = System.IO.File.Open("test.json", FileMode.OpenOrCreate, FileAccess.ReadWrite);
 
-            IDtoSerializer<SayingDto> dtoSerializer = new FastJsonSerializer<SayingDto>(mem);
+            IDtoSerializer<SayingDto> dtoSerializer = new MicrosoftJsonSerializer<SayingDto>(mem);
             ITableReaderWriter<Saying> said = new TableWriterForSerializer<Saying, SayingDto>(new MemoryHashTableWriter<Saying>(), converter, dtoSerializer);
+
+            var performanceLogger = new ConsolePerformanceLogger();
 
             IAsyncProjection projection = new ConsoleProjection(new AsyncProjectFromImplementation(new SayingHistoryProjection(said)));
 
-            IEventStoreAsync es2 = new EventStoreAsyncPublisher(es, projection);
+            CompositeAsyncProjection composite = new CompositeAsyncProjection(performanceLogger, projection);
 
-
+            IEventStoreAsync es2 = new EventStoreAsyncPublisher(es, composite);
+            
             //IAsyncCommandDispatcher dispatcher = new ConsoleLoggerDispatcher(new CompositeAsyncCommandDispatcher(new SaySomething(es2)));
-            ICommandHandler handler = new SaySomething(es2);
+            ICommandHandler handler = new SaySomething(es2, performanceLogger);
 
             await handler.GetExecutor(new SayCommand()
             {
