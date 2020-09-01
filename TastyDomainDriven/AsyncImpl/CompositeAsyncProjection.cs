@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using TastyDomainDriven.PerformanceMeasurements;
 
 namespace TastyDomainDriven.AsyncImpl
@@ -32,7 +33,13 @@ namespace TastyDomainDriven.AsyncImpl
                 ProjectionMeasurement measurement = null;
                 if (performance != null)
                 {
-                    measurement = new ProjectionMeasurement(projection.GetType());
+                    Type realType = projection.GetType();
+                    if (projection is IConfigurableProfiling configurable)
+                    {
+                        realType = configurable.ProjectionType ?? projection.GetType();
+                    }
+
+                    measurement = new ProjectionMeasurement(realType);
                     measurement.Start();
                 }
 
