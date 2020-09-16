@@ -1,4 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
+using TastyDomainDriven.PerformanceMeasurements;
 using TastyDomainDriven.Projections;
 
 namespace TastyDomainDriven.AsyncImpl
@@ -6,13 +9,15 @@ namespace TastyDomainDriven.AsyncImpl
     /// <summary>
     /// Find all <![CDATA[IConsumesAsync<T>]]> on the projections and invoke consume.
     /// </summary>
-    public sealed class AsyncProjectFromImplementation : IAsyncProjection
+    public sealed class AsyncProjectFromImplementation : IAsyncProjection, IConfigurableProfiling
     {
         private readonly EventRegisterAsync consumer;
 
         public AsyncProjectFromImplementation(params object[] projections)
         {
             this.consumer = new EventRegisterAsync(typeof(IConsumesAsync<>));
+
+            ProjectionType = projections.FirstOrDefault()?.GetType();
 
             foreach (var p in projections)
             {
@@ -24,5 +29,7 @@ namespace TastyDomainDriven.AsyncImpl
         {
             await consumer.Consume(@event);
         }
+
+        public Type ProjectionType { get; }
     }
 }
