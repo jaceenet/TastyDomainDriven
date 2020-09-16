@@ -3,11 +3,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using TastyDomainDriven.AsyncImpl;
+using TastyDomainDriven.DI;
 using TastyDomainDriven.PerformanceMeasurements;
 
 namespace TastyDomainDriven.AggregateService
 {
-    public class UpdateAggregateAsync<TAggregateRoot> where TAggregateRoot : IAggregate, new()
+    public class UpdateAggregateAsync<TAggregateRoot> where TAggregateRoot : IAggregate
     {
         private static readonly TheLogger Logger = TheLogManager.GetLogger(typeof(UpdateAggregate<TAggregateRoot>));
         private IPerformanceLogger performanceLogger;
@@ -15,6 +16,15 @@ namespace TastyDomainDriven.AggregateService
         public UpdateAggregateAsync(IPerformanceLogger logger = null)
         {
             performanceLogger = logger;
+        }
+
+        /// <summary>
+        /// Create new aggregate instance.
+        /// </summary>
+        /// <returns></returns>
+        protected virtual TAggregateRoot CreateAggregate()
+        {
+            return ClassActivatorService.Instance.CreateInstance<TAggregateRoot>();
         }
 
         public async Task Execute<TIdent>(IEventStoreAsync eventStorage, TIdent id, Action<TAggregateRoot> execute) where TIdent : IIdentity
@@ -38,7 +48,7 @@ namespace TastyDomainDriven.AggregateService
 
             stHistory = Stopwatch.StartNew();
             // create new Customer aggregate from the history
-            var aggregate = new TAggregateRoot();
+            var aggregate = CreateAggregate();
             aggregate.LoadsFromHistory(stream.Events);
             stHistory.Stop();
 

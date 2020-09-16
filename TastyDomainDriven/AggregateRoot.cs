@@ -1,18 +1,36 @@
-﻿namespace TastyDomainDriven
+﻿using TastyDomainDriven.DI;
+
+namespace TastyDomainDriven
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
 
-    public class AggregateRoot<TState> : IAggregate where TState : AggregateState, new()
+    public class AggregateRoot<TState> : IAggregate where TState : AggregateState
     {
-        public readonly TState State = new TState();
+        //public readonly TState State;
+
+        private Lazy<TState> stateLazy;
+
+        public TState State
+        {
+            get
+            {
+                return stateLazy.Value;
+            }
+        }
 
         private static readonly TheLogger Logger = TheLogManager.GetLogger(typeof(AggregateRoot<TState>));
 
         public AggregateRoot()
         {
+            stateLazy = new Lazy<TState>(CreateState, false);
             this.Changes = new List<IEvent>();
+        }
+
+        protected virtual TState CreateState()
+        {
+            return ClassActivatorService.Instance.CreateInstance<TState>();
         }
 
         public void LoadsFromHistory(IEnumerable<IEvent> events)

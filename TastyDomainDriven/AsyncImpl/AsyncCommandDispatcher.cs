@@ -16,7 +16,7 @@ namespace TastyDomainDriven.AsyncImpl
             this.eventStore = eventStore;
         }
 
-        protected async Task Update<TIdent>(TIdent id, Action<TAggregateRoot> execute) where TIdent : IIdentity
+        protected virtual async Task Update<TIdent>(TIdent id, Action<TAggregateRoot> execute) where TIdent : IIdentity
         {
             await new UpdateAggregateAsync<TAggregateRoot>(_performanceLogger).Execute(this.eventStore, id, execute);
         }
@@ -30,7 +30,7 @@ namespace TastyDomainDriven.AsyncImpl
         /// <param name="id">existing aggregate id</param>
         /// <param name="execute">invoke logic</param>
         /// <param name="createId">id to save changes to</param>
-        protected async Task Create<TIdent, TResult, TCreateFromId>(TCreateFromId id, Func<TResult, TAggregateRoot> execute, TIdent createId)
+        protected virtual async Task Create<TIdent, TResult, TCreateFromId>(TCreateFromId id, Func<TResult, TAggregateRoot> execute, TIdent createId)
             where TIdent : IIdentity
             where TCreateFromId : IIdentity
             where TResult : IAggregate, new()

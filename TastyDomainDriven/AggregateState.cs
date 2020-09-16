@@ -17,7 +17,7 @@ namespace TastyDomainDriven
             {
                ((dynamic)this).When((dynamic)e);
             }
-            catch (RuntimeBinderException)
+            catch (RuntimeBinderException ex)
             {
                 throw new Exception(string.Format("The State {0} should implement IStateEvent<{1}> even if no state change is required", this.GetType().FullName, e.GetType().Name));
             }            
