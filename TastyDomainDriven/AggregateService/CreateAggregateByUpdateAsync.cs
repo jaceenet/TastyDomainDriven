@@ -3,11 +3,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using TastyDomainDriven.AsyncImpl;
+using TastyDomainDriven.DI;
 using TastyDomainDriven.PerformanceMeasurements;
 
 namespace TastyDomainDriven.AggregateService
 {
-    public class CreateAggregateByUpdateAsync<TAggregateRoot> where TAggregateRoot : IAggregate, new()
+    public class CreateAggregateByUpdateAsync<TAggregateRoot> where TAggregateRoot : IAggregate
     {
         private static readonly TheLogger Logger = TheLogManager.GetLogger(typeof(CreateAggregateByUpdate<TAggregateRoot>));
         private IPerformanceLogger performanceLogger;
@@ -19,7 +20,7 @@ namespace TastyDomainDriven.AggregateService
 
         public async Task Execute<TIdent, TResult, TIdentCreated>(IEventStoreAsync eventStorage, TIdent id, Func<TResult, TAggregateRoot> execute, TIdentCreated createId)
             where TIdent : IIdentity
-            where TResult : IAggregate, new()
+            where TResult : IAggregate
             where TIdentCreated : IIdentity
         {
             Stopwatch stLoad, stHistory, stExecute, stAppend;
@@ -45,7 +46,7 @@ namespace TastyDomainDriven.AggregateService
 
             stHistory = Stopwatch.StartNew();
             // create new Customer aggregate from the history
-            var aggregate = new TResult();
+            TResult aggregate = CreateAggregate<TIdent, TResult, TIdentCreated>();
             aggregate.LoadsFromHistory(stream.Events);
             stHistory.Stop();
 
@@ -88,6 +89,11 @@ namespace TastyDomainDriven.AggregateService
                 };
                 await performanceLogger.TrackAggregate(performance);
             }
+        }
+
+        protected virtual TResult CreateAggregate<TIdent, TResult, TIdentCreated>() where TIdent : IIdentity where TResult : IAggregate where TIdentCreated : IIdentity
+        {
+            return ClassActivatorService.Instance.CreateInstance<TResult>();
         }
     }
 }

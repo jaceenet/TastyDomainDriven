@@ -1,11 +1,18 @@
+using TastyDomainDriven.DI;
+
 namespace TastyDomainDriven.AggregateService
 {
 	using System;
 	using System.Linq;
 
-	public class UpdateAggregate<TAggregateRoot> where TAggregateRoot : IAggregate, new()
+	public class UpdateAggregate<TAggregateRoot> where TAggregateRoot : IAggregate
 	{
 		private static readonly TheLogger Logger = TheLogManager.GetLogger(typeof(UpdateAggregate<TAggregateRoot>));
+
+        protected virtual TAggregateRoot CreateAggregate()
+        {
+            return ClassActivatorService.Instance.CreateInstance<TAggregateRoot>();
+        }
 
 		public void Execute<TIdent>(IEventStore eventStorage, TIdent id, Action<TAggregateRoot> execute) where TIdent : IIdentity
 		{
@@ -23,7 +30,7 @@ namespace TastyDomainDriven.AggregateService
 			var stream = eventStorage.LoadEventStream(id);
 
 			// create new Customer aggregate from the history
-			var aggregate = new TAggregateRoot();
+			var aggregate = CreateAggregate();
 			aggregate.LoadsFromHistory(stream.Events);
 
 			// execute delegated action

@@ -3,7 +3,7 @@ namespace TastyDomainDriven.AggregateService
 	using System;
 	using System.Linq;
 
-	public class CreateAggregateByUpdate<TAggregateRoot> where TAggregateRoot : IAggregate, new()
+	public class CreateAggregateByUpdate<TAggregateRoot> where TAggregateRoot : IAggregate
 	{
 		private static readonly TheLogger Logger = TheLogManager.GetLogger(typeof(CreateAggregateByUpdate<TAggregateRoot>));
 

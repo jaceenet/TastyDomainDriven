@@ -8,13 +8,13 @@ namespace TastyDomainDriven.AggregateService
 {
     public abstract class AggregateHandler<TAggregateRoot> :
         ICommandHandler
-        where TAggregateRoot : IAggregate, new()
+        where TAggregateRoot : IAggregate
     {
         private readonly Dictionary<Type, Func<ICommand, ICommandExecutor>> executors = new Dictionary<Type, Func<ICommand, ICommandExecutor>>();
 
         protected AggregateHandler(IEventStoreAsync eventStore, IPerformanceLogger performanceLogger = null)
         {
-            _performanceLogger = performanceLogger;
+            this.performanceLogger = performanceLogger;
             this.eventStore = eventStore;
         }
 
@@ -29,12 +29,12 @@ namespace TastyDomainDriven.AggregateService
             return executors.TryGetValue(command.GetType(), out finder) ? finder.Invoke(command) : null;
         }
 
-        private readonly IEventStoreAsync eventStore;
-        private IPerformanceLogger _performanceLogger;
+        protected readonly IEventStoreAsync eventStore;
+        protected readonly IPerformanceLogger performanceLogger;
 
         protected virtual async Task Update<TIdent>(TIdent id, Action<TAggregateRoot> execute) where TIdent : IIdentity
         {
-            await new UpdateAggregateAsync<TAggregateRoot>(_performanceLogger).Execute(this.eventStore, id, execute);
+            await new UpdateAggregateAsync<TAggregateRoot>(performanceLogger).Execute(this.eventStore, id, execute);
         }
 
         /// <summary>
@@ -49,10 +49,10 @@ namespace TastyDomainDriven.AggregateService
         protected virtual async Task Create<TIdent, TResult, TCreateFromId>(TCreateFromId id, Func<TResult, TAggregateRoot> execute, TIdent createId)
             where TIdent : IIdentity
             where TCreateFromId : IIdentity
-            where TResult : IAggregate, new()
+            where TResult : IAggregate
         {
             // Load event stream from the store
-            await new CreateAggregateByUpdateAsync<TAggregateRoot>(_performanceLogger).Execute(this.eventStore, id, execute, createId);
+            await new CreateAggregateByUpdateAsync<TAggregateRoot>(performanceLogger).Execute(this.eventStore, id, execute, createId);
         }
     }
 }
